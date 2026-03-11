@@ -12,7 +12,6 @@
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
 - [Environment Variables](#-environment-variables)
 - [API Reference](#-api-reference)
 - [Store Owner Dashboard](#-store-owner-dashboard)
@@ -86,9 +85,7 @@ Users pick a store first, then see **only that store's live inventory**. Ideal f
 ### 4. Search & Filters
 
 - **Keyword search** across product names, tags, and brands — debounced, updates as you type
-- **Filters:**
-  - Size, colour, price range
-  - Category, store, availability
+- **Filters:** Size, colour, price range, category, store, availability
 - **Sort by:** Trending · Newest · Price ↑ · Price ↓
 
 ---
@@ -246,79 +243,36 @@ clozet/
 │   ├── vite.config.js
 │   └── tailwind.config.js
 │
-├── backend/
-│   ├── src/
-│   │   ├── models/
-│   │   │   ├── User.js                  # Customer + store owner
-│   │   │   ├── Store.js                 # Store with geolocation
-│   │   │   ├── Product.js               # Inventory, sizes, colours
-│   │   │   ├── Order.js                 # Order lifecycle
-│   │   │   └── Review.js                # Ratings per order
-│   │   ├── controllers/
-│   │   │   ├── authController.js        # OTP, Google, profile
-│   │   │   ├── productController.js     # CRUD + search
-│   │   │   ├── storeController.js       # Nearby + store products
-│   │   │   ├── orderController.js       # Place, track, update
-│   │   │   └── paymentController.js     # Razorpay create + verify
-│   │   ├── routes/
-│   │   │   ├── auth.js
-│   │   │   ├── products.js
-│   │   │   ├── stores.js
-│   │   │   ├── orders.js
-│   │   │   ├── payments.js
-│   │   │   ├── wishlist.js
-│   │   │   ├── reviews.js
-│   │   │   └── admin.js
-│   │   ├── middleware/
-│   │   │   └── auth.js                  # JWT guard + role check
-│   │   ├── config/
-│   │   │   └── db.js                    # MongoDB connection
-│   │   └── server.js                    # Express + Socket.IO entry
-│   └── .env.example
-│
-└── docs/
-    └── SETUP_GUIDE.md                   # Full implementation guide
+└── backend/
+    ├── src/
+    │   ├── models/
+    │   │   ├── User.js                  # Customer + store owner
+    │   │   ├── Store.js                 # Store with geolocation
+    │   │   ├── Product.js               # Inventory, sizes, colours
+    │   │   ├── Order.js                 # Order lifecycle
+    │   │   └── Review.js                # Ratings per order
+    │   ├── controllers/
+    │   │   ├── authController.js        # OTP, Google, profile
+    │   │   ├── productController.js     # CRUD + search
+    │   │   ├── storeController.js       # Nearby + store products
+    │   │   ├── orderController.js       # Place, track, update
+    │   │   └── paymentController.js     # Razorpay create + verify
+    │   ├── routes/
+    │   │   ├── auth.js
+    │   │   ├── products.js
+    │   │   ├── stores.js
+    │   │   ├── orders.js
+    │   │   ├── payments.js
+    │   │   ├── wishlist.js
+    │   │   ├── reviews.js
+    │   │   └── admin.js
+    │   ├── middleware/
+    │   │   └── auth.js                  # JWT guard + role check
+    │   ├── config/
+    │   │   └── db.js                    # MongoDB connection
+    │   └── server.js                    # Express + Socket.IO entry
+    └── .env.example
 ```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 20+
-- MongoDB Atlas account (free)
-- Accounts for: Google Cloud, Razorpay, Cloudinary *(see `docs/SETUP_GUIDE.md`)*
-
-### 1. Clone & Install
-
-```bash
-# Backend
-cd clozet/backend
-npm install
-cp .env.example .env       # Fill in your keys
-
-# Frontend
-cd clozet/frontend
-npm install
-cp .env.example .env       # Fill in your keys
-```
-
-### 2. Run Locally
-
-```bash
-# Terminal 1 — Backend
-cd clozet/backend
-npm run dev
-# → "Clozet API running on port 5000"
-# → "MongoDB connected"
-
-# Terminal 2 — Frontend
-cd clozet/frontend
-npm run dev
-# → Visit http://localhost:5173
-```
-
-> **Note:** In development, OTPs are printed to the backend console instead of being sent via SMS/email.
 
 ---
 
