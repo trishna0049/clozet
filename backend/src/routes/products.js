@@ -1,0 +1,10 @@
+const router = require('express').Router()
+const c = require('../controllers/productController')
+const { protect, requireRole } = require('../middleware/auth')
+router.get('/', c.getProducts)
+router.get('/search', c.searchProducts)
+router.get('/:id', c.getProduct)
+router.post('/', protect, requireRole('store'), c.createProduct)
+router.put('/:id', protect, requireRole('store'), c.updateProduct)
+router.delete('/:id', protect, requireRole('store'), c.deleteProduct)
+module.exports = router
