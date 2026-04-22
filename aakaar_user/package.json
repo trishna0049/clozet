@@ -1,0 +1,19 @@
+{
+  "name": "aakaar-platform",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @aakaar/frontend",
+    "dev:frontend": "npm run dev --workspace @aakaar/frontend",
+    "seed": "npm run seed:supabase --workspace @aakaar/frontend",
+    "build": "npm run build --workspace @aakaar/frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "lucide-react": "^1.8.0"
+  }
+}

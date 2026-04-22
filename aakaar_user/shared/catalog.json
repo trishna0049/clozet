@@ -1,0 +1,590 @@
+{
+  "brand": {
+    "name": "Aakaar",
+    "meaning": "Form or Shape",
+    "tagline": "Choose the Print. We Shape the Style.",
+    "description": "A print-first fashion label where every print is a mini universe and each silhouette reveals a new way to wear it."
+  },
+  "prints": [
+    {
+      "id": "print-floral-garden",
+      "slug": "floral-garden",
+      "name": "Floral Garden",
+      "category": "Floral",
+      "image": "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80",
+      "bannerImage": "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=80",
+      "description": "Painterly blossoms arranged like a wearable bouquet, designed for soft volume and romantic silhouettes.",
+      "mood": "Romantic",
+      "dropNote": "Only 20 left in this drop",
+      "limitedLeft": 20,
+      "bestseller": true,
+      "featured": true
+    },
+    {
+      "id": "print-desert-bloom",
+      "slug": "desert-bloom",
+      "name": "Desert Bloom",
+      "category": "Abstract",
+      "image": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80",
+      "bannerImage": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1600&q=80",
+      "description": "Sun-warmed brushstrokes and fluid petals inspired by terracotta skies and late-afternoon light.",
+      "mood": "Earthy",
+      "dropNote": "Small batch print drop",
+      "limitedLeft": 16,
+      "bestseller": false,
+      "featured": true
+    },
+    {
+      "id": "print-jaipur-mosaic",
+      "slug": "jaipur-mosaic",
+      "name": "Jaipur Mosaic",
+      "category": "Ethnic",
+      "image": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+      "bannerImage": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1600&q=80",
+      "description": "Architectural block motifs translated into a playful tiled repeat that feels both heritage-rich and contemporary.",
+      "mood": "Vibrant",
+      "dropNote": "Back by demand",
+      "limitedLeft": 28,
+      "bestseller": true,
+      "featured": true
+    },
+    {
+      "id": "print-midnight-vine",
+      "slug": "midnight-vine",
+      "name": "Midnight Vine",
+      "category": "Floral",
+      "image": "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1200&q=80",
+      "bannerImage": "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1600&q=80",
+      "description": "Shadowy floral trails with a luxe evening mood, tailored for stronger silhouettes and occasion dressing.",
+      "mood": "Evening",
+      "dropNote": "Limited festive edit",
+      "limitedLeft": 12,
+      "bestseller": false,
+      "featured": false
+    },
+    {
+      "id": "print-saffron-tide",
+      "slug": "saffron-tide",
+      "name": "Saffron Tide",
+      "category": "Geometric",
+      "image": "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80",
+      "bannerImage": "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1600&q=80",
+      "description": "Sunlit lines and rhythmic curves that make coordinated sets feel graphic, fresh, and easy to style.",
+      "mood": "Playful",
+      "dropNote": "Only 14 sets left",
+      "limitedLeft": 14,
+      "bestseller": false,
+      "featured": true
+    },
+    {
+      "id": "print-studio-sketch",
+      "slug": "studio-sketch",
+      "name": "Studio Sketch",
+      "category": "Abstract",
+      "image": "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+      "bannerImage": "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1600&q=80",
+      "description": "Loose hand-drawn marks with a gallery-like feel for minimalists who still want statement dressing.",
+      "mood": "Modern",
+      "dropNote": "Fresh drop this week",
+      "limitedLeft": 24,
+      "bestseller": true,
+      "featured": false
+    }
+  ],
+  "products": [
+    {
+      "id": "prod-floral-corset",
+      "slug": "floral-garden-corset-top",
+      "printId": "print-floral-garden",
+      "silhouette": "Corset Top",
+      "title": "Floral Garden Corset Top",
+      "price": 950,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Premium cotton sateen",
+      "description": "Structured bodice with soft boning and a flattering neckline that lets the floral placement shine.",
+      "fit": "Fitted through the waist",
+      "details": [
+        "Smocked back panel",
+        "Side zipper closure",
+        "Fully lined"
+      ],
+      "inventory": 8,
+      "badge": "Bestseller"
+    },
+    {
+      "id": "prod-floral-peplum",
+      "slug": "floral-garden-peplum-top",
+      "printId": "print-floral-garden",
+      "silhouette": "Peplum Top",
+      "title": "Floral Garden Peplum Top",
+      "price": 890,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Breathable cotton poplin",
+      "description": "A floaty peplum shape made for brunches, birthdays, and easy summer layering.",
+      "fit": "Easy fit with waist shaping",
+      "details": [
+        "Tie-up shoulder straps",
+        "Gathered waist seam",
+        "Machine washable"
+      ],
+      "inventory": 10,
+      "badge": "Limited Print"
+    },
+    {
+      "id": "prod-floral-midi",
+      "slug": "floral-garden-midi-dress",
+      "printId": "print-floral-garden",
+      "silhouette": "Midi Dress",
+      "title": "Floral Garden Midi Dress",
+      "price": 1650,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Soft viscose blend",
+      "description": "The hero dress of the print, cut with movement and designed to photograph beautifully from every angle.",
+      "fit": "Skims the bodice with a fluid skirt",
+      "details": [
+        "Square neckline",
+        "Elasticated back",
+        "Side pockets"
+      ],
+      "inventory": 6,
+      "badge": "Trending"
+    },
+    {
+      "id": "prod-desert-halter",
+      "slug": "desert-bloom-halter-neck-top",
+      "printId": "print-desert-bloom",
+      "silhouette": "Halter Neck",
+      "title": "Desert Bloom Halter Neck Top",
+      "price": 780,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Textured rayon flex",
+      "description": "A warm-toned halter top that feels equally at home on vacation edits and city evenings.",
+      "fit": "Slim fit with open shoulders",
+      "details": [
+        "Back tie detail",
+        "Lined front panel",
+        "Lightweight drape"
+      ],
+      "inventory": 9,
+      "badge": "New Drop"
+    },
+    {
+      "id": "prod-desert-skirt",
+      "slug": "desert-bloom-midi-skirt",
+      "printId": "print-desert-bloom",
+      "silhouette": "Skirt",
+      "title": "Desert Bloom Midi Skirt",
+      "price": 1100,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Viscose crepe",
+      "description": "Bias-cut and flowy, built to pair effortlessly with basics or the matching halter in the same print story.",
+      "fit": "High waist with easy sweep",
+      "details": [
+        "Concealed side zip",
+        "Soft lining",
+        "Below-calf length"
+      ],
+      "inventory": 7,
+      "badge": "Low Stock"
+    },
+    {
+      "id": "prod-desert-dress",
+      "slug": "desert-bloom-midi-dress",
+      "printId": "print-desert-bloom",
+      "silhouette": "Midi Dress",
+      "title": "Desert Bloom Midi Dress",
+      "price": 1720,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Fluid modal satin",
+      "description": "A statement silhouette with a sunset palette, created for celebratory dressing without feeling heavy.",
+      "fit": "Shaped bodice and flared hem",
+      "details": [
+        "Adjustable straps",
+        "Lined bust",
+        "Invisible side zipper"
+      ],
+      "inventory": 5,
+      "badge": "Occasion Pick"
+    },
+    {
+      "id": "prod-jaipur-corset",
+      "slug": "jaipur-mosaic-corset-top",
+      "printId": "print-jaipur-mosaic",
+      "silhouette": "Corset Top",
+      "title": "Jaipur Mosaic Corset Top",
+      "price": 990,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Cotton slub",
+      "description": "A sharper take on heritage print dressing with structure, contrast piping, and festive energy.",
+      "fit": "Contoured and supportive",
+      "details": [
+        "Boned seams",
+        "Back smocking",
+        "Contrast edge binding"
+      ],
+      "inventory": 11,
+      "badge": "Bestseller"
+    },
+    {
+      "id": "prod-jaipur-peplum",
+      "slug": "jaipur-mosaic-peplum-top",
+      "printId": "print-jaipur-mosaic",
+      "silhouette": "Peplum Top",
+      "title": "Jaipur Mosaic Peplum Top",
+      "price": 860,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Light cotton cambric",
+      "description": "Playful volume and artisan-inspired print placement make this a standout everyday top.",
+      "fit": "Comfort fit with defined waist seam",
+      "details": [
+        "Puff sleeves",
+        "Back keyhole closure",
+        "Soft inner lining"
+      ],
+      "inventory": 14,
+      "badge": "Editor Pick"
+    },
+    {
+      "id": "prod-jaipur-skirt",
+      "slug": "jaipur-mosaic-tiered-skirt",
+      "printId": "print-jaipur-mosaic",
+      "silhouette": "Skirt",
+      "title": "Jaipur Mosaic Tiered Skirt",
+      "price": 1280,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Crisp cotton voile",
+      "description": "A tiered skirt that amplifies the mosaic repeat and builds an easy festive co-ord.",
+      "fit": "High-rise with voluminous sweep",
+      "details": [
+        "Elastic back waistband",
+        "Side seam pockets",
+        "Midi length"
+      ],
+      "inventory": 13,
+      "badge": "Festival Ready"
+    },
+    {
+      "id": "prod-midnight-dress",
+      "slug": "midnight-vine-slip-dress",
+      "printId": "print-midnight-vine",
+      "silhouette": "Midi Dress",
+      "title": "Midnight Vine Slip Dress",
+      "price": 1780,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Lustrous modal satin",
+      "description": "A dressy slip silhouette that gives the darker floral print a polished evening personality.",
+      "fit": "Bias-cut and body-skimming",
+      "details": [
+        "Adjustable straps",
+        "Cowl neckline",
+        "Invisible zip"
+      ],
+      "inventory": 4,
+      "badge": "Low Stock"
+    },
+    {
+      "id": "prod-midnight-halter",
+      "slug": "midnight-vine-halter-top",
+      "printId": "print-midnight-vine",
+      "silhouette": "Halter Neck",
+      "title": "Midnight Vine Halter Top",
+      "price": 920,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Printed crepe",
+      "description": "An elevated halter top that makes the darker print feel refined, sharp, and night-out ready.",
+      "fit": "Close to body with adjustable back",
+      "details": [
+        "Tie-neck fastening",
+        "Lined front",
+        "Cropped hem"
+      ],
+      "inventory": 6,
+      "badge": "Night Out"
+    },
+    {
+      "id": "prod-saffron-coord-top",
+      "slug": "saffron-tide-peplum-top",
+      "printId": "print-saffron-tide",
+      "silhouette": "Peplum Top",
+      "title": "Saffron Tide Peplum Top",
+      "price": 840,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Structured cotton blend",
+      "description": "A graphic peplum top built for repeat wear, styled alone or with the matching skirt.",
+      "fit": "Slim bodice with flared hem",
+      "details": [
+        "Back zipper",
+        "Square neckline",
+        "Fully lined"
+      ],
+      "inventory": 10,
+      "badge": "Co-ord Hero"
+    },
+    {
+      "id": "prod-saffron-coord-skirt",
+      "slug": "saffron-tide-a-line-skirt",
+      "printId": "print-saffron-tide",
+      "silhouette": "Skirt",
+      "title": "Saffron Tide A-Line Skirt",
+      "price": 1260,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Cotton twill",
+      "description": "An easy A-line skirt that showcases the geometry of the print in a clean, editorial way.",
+      "fit": "Fitted waist with roomy hem",
+      "details": [
+        "Side pockets",
+        "Concealed zip",
+        "Calf length"
+      ],
+      "inventory": 9,
+      "badge": "Set Favourite"
+    },
+    {
+      "id": "prod-studio-corset",
+      "slug": "studio-sketch-corset-top",
+      "printId": "print-studio-sketch",
+      "silhouette": "Corset Top",
+      "title": "Studio Sketch Corset Top",
+      "price": 980,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Matte cotton sateen",
+      "description": "A gallery-inspired statement top with expressive linework and a polished structure.",
+      "fit": "Contoured fit",
+      "details": [
+        "Internal support seams",
+        "Straight neckline",
+        "Back zipper"
+      ],
+      "inventory": 12,
+      "badge": "Modern Muse"
+    },
+    {
+      "id": "prod-studio-dress",
+      "slug": "studio-sketch-shirt-dress",
+      "printId": "print-studio-sketch",
+      "silhouette": "Midi Dress",
+      "title": "Studio Sketch Shirt Dress",
+      "price": 1680,
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1495385794356-15371f348c31?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "fabric": "Airy cotton-linen blend",
+      "description": "Relaxed enough for everyday wear, but artful enough to feel like a statement piece in one move.",
+      "fit": "Relaxed through the body with tie waist",
+      "details": [
+        "Button front",
+        "Detachable belt",
+        "Roll-tab sleeves"
+      ],
+      "inventory": 8,
+      "badge": "Everyday Icon"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "rev-1",
+      "name": "Aashi",
+      "city": "Jaipur",
+      "rating": 5,
+      "quote": "I loved choosing the print first. It felt like building my own mini collection around one mood."
+    },
+    {
+      "id": "rev-2",
+      "name": "Manya",
+      "city": "Delhi",
+      "rating": 5,
+      "quote": "The same print across multiple silhouettes is genius. I bought the corset now and the dress later."
+    },
+    {
+      "id": "rev-3",
+      "name": "Prisha",
+      "city": "Mumbai",
+      "rating": 4,
+      "quote": "The website feels premium but still easy to shop. The print pages are my favorite part."
+    }
+  ],
+  "gallery": [
+    {
+      "id": "gallery-1",
+      "image": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
+      "caption": "Print-led styling stories"
+    },
+    {
+      "id": "gallery-2",
+      "image": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900&q=80",
+      "caption": "Design studio moodboards"
+    },
+    {
+      "id": "gallery-3",
+      "image": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
+      "caption": "Close-ups of fabric and form"
+    },
+    {
+      "id": "gallery-4",
+      "image": "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80",
+      "caption": "Weekend looks in limited drops"
+    }
+  ]
+}
+
