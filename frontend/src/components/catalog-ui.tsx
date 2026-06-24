@@ -50,29 +50,42 @@ export function SectionHeader({
   title,
   description,
   actionLabel,
-  actionHref
+  actionHref,
+  compact
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
-  description: string;
+  description?: string;
   actionLabel?: string;
   actionHref?: string;
+  compact?: boolean;
 }) {
+  const eyebrowClass = compact
+    ? "text-[10px] uppercase tracking-[0.35em] text-cocoa/60"
+    : "text-xs uppercase tracking-[0.45em] text-cocoa/60";
+
+  const titleClass = compact
+    ? "mt-2 font-display text-3xl leading-tight text-cocoa md:text-4xl"
+    : "mt-3 font-display text-4xl leading-tight text-cocoa md:text-5xl";
+
+  const descClass = compact
+    ? "mt-2 text-sm leading-6 text-cocoa/72"
+    : "mt-4 text-base leading-7 text-cocoa/72";
+
+  const actionClass = compact
+    ? "inline-flex w-fit rounded-full border border-cocoa/15 bg-white px-4 py-2 text-sm font-medium text-cocoa transition hover:-translate-y-0.5"
+    : "inline-flex w-fit rounded-full border border-cocoa/15 bg-white px-5 py-3 text-sm font-medium text-cocoa transition hover:-translate-y-0.5";
+
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
       <div className="max-w-2xl">
-        <p className="text-xs uppercase tracking-[0.45em] text-cocoa/60">{eyebrow}</p>
-        <h2 className="mt-3 font-display text-4xl leading-tight text-cocoa md:text-5xl">
-          {title}
-        </h2>
-        <p className="mt-4 text-base leading-7 text-cocoa/72">{description}</p>
+        {eyebrow ? <p className={eyebrowClass}>{eyebrow}</p> : null}
+        <h2 className={titleClass}>{title}</h2>
+        {description ? <p className={descClass}>{description}</p> : null}
       </div>
 
       {actionLabel && actionHref ? (
-        <Link
-          href={actionHref}
-          className="inline-flex w-fit rounded-full border border-cocoa/15 bg-white px-5 py-3 text-sm font-medium text-cocoa transition hover:-translate-y-0.5"
-        >
+        <Link href={actionHref} className={actionClass}>
           {actionLabel}
         </Link>
       ) : null}
@@ -88,7 +101,7 @@ export function PrintCard({ item }: { item: PrintWithMeta }) {
   return (
     <article className="overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-soft transition duration-300 hover:-translate-y-1 flex flex-col h-full">
       <Link
-        href={`/prints/${item.slug}`}
+        href={`/prints/${encodeURIComponent(item.slug)}`}
         className="group block"
       >
         <MediaPanel
@@ -101,7 +114,7 @@ export function PrintCard({ item }: { item: PrintWithMeta }) {
 
       <div className="flex-1 flex flex-col px-5 py-4 gap-3">
         <div className="flex items-start justify-between gap-2">
-          <Link href={`/prints/${item.slug}`} className="flex-1 min-w-0">
+          <Link href={`/prints/${encodeURIComponent(item.slug)}`} className="flex-1 min-w-0">
             <div>
               <p className="text-xs uppercase tracking-[0.28em] text-cocoa/50 line-clamp-1">{item.category}</p>
               <h3 className="font-display text-2xl text-cocoa leading-tight line-clamp-1">{item.name}</h3>
@@ -134,39 +147,51 @@ export function PrintCard({ item }: { item: PrintWithMeta }) {
 
 export function ProductCard({
   product,
-  printName
+  printName,
+  compact = false
 }: {
   product: Product;
   printName: string;
+  compact?: boolean;
 }) {
+  console.count(`ProductCard ${product.slug}`);
   const { addToCart, toggleWishlist, wishlist } = useStore();
-  const productId = `product:${product.slug}`;
-  const wishlisted = wishlist.includes(productId) || wishlist.includes(product.slug);
+  const wishlisted = wishlist.includes(product.slug);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isAdded, setIsAdded] = useState(false);
+  const [showSizeChart, setShowSizeChart] = useState(false);
 
   return (
     <article className="overflow-hidden rounded-[1.8rem] border border-white/60 bg-white shadow-soft">
-      <Link href={`/product/${product.slug}`} className="group block">
-        <MediaPanel
-          src={product.images[0] ?? null}
-          alt={product.title}
-          label={`${product.silhouette} image`}
-          className="aspect-[4/5]"
-        />
-      </Link>
+      <div className="relative">
+        <Link href={`/product/${encodeURIComponent(product.slug)}`} className="group block">
+          <MediaPanel
+            src={product.images[0] ?? null}
+            alt={product.title}
+            label={`${product.silhouette} image`}
+            className={compact ? "aspect-[5/6]" : "aspect-[4/5]"}
+          />
+        </Link>
+        <button
+          type="button"
+          onClick={() => setShowSizeChart(true)}
+          className="absolute bottom-3 right-3 z-10 rounded-full border border-cocoa/15 bg-white/70 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-cocoa shadow-sm backdrop-blur-sm transition hover:bg-white/90"
+        >
+          Size chart
+        </button>
+      </div>
 
-      <div className="space-y-3 px-5 py-5 flex flex-col h-full">
+      <div className={`flex flex-col h-full min-h-0 ${compact ? "space-y-2 px-4 py-4" : "space-y-3 px-5 py-5"}`}>
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-xs uppercase tracking-[0.35em] text-cocoa/50 line-clamp-1">{printName}</p>
-            <Link href={`/product/${product.slug}`} className="mt-2 block">
-              <h3 className="font-display text-3xl leading-none text-cocoa line-clamp-1">{product.silhouette}</h3>
+            <Link href={`/product/${encodeURIComponent(product.slug)}`} className="mt-2 block">
+              <h3 className={`font-display leading-none text-cocoa line-clamp-1 ${compact ? "text-2xl" : "text-3xl"}`}>{product.silhouette}</h3>
             </Link>
           </div>
           <button
             type="button"
-            onClick={() => toggleWishlist(productId)}
+            onClick={() => toggleWishlist(product.slug)}
             className="rounded-full p-2 hover:bg-cream transition flex-shrink-0"
             aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
@@ -178,7 +203,7 @@ export function ProductCard({
         </div>
 
         {product.badge ? (
-          <p className="w-fit rounded-full bg-cream px-3 py-1 text-xs uppercase tracking-[0.28em] text-cocoa/80 line-clamp-1">
+          <p className={`w-fit rounded-full bg-cream ${compact ? "px-2 py-0.5 text-[9px]" : "px-3 py-1 text-xs"} uppercase tracking-[0.28em] text-cocoa/80 line-clamp-1`}>
             {product.badge}
           </p>
         ) : null}
@@ -197,7 +222,7 @@ export function ProductCard({
               key={size}
               type="button"
               onClick={() => setSelectedSize(size)}
-              className={`rounded-full border px-3 py-1 text-xs uppercase tracking-[0.25em] transition ${
+              className={`rounded-full border ${compact ? "px-2.5 py-1 text-[9px]" : "px-3 py-1 text-xs"} uppercase tracking-[0.25em] transition ${
                 selectedSize === size
                   ? "border-cocoa bg-cocoa text-cream"
                   : "border-cocoa/15 bg-transparent text-cocoa hover:border-cocoa/30"
@@ -208,6 +233,59 @@ export function ProductCard({
           ))}
         </div>
 
+        {showSizeChart && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
+            <div className="w-full max-w-2xl rounded-[1.5rem] bg-white p-6 shadow-soft">
+              <div className="flex items-start justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-display text-cocoa">Size chart</h2>
+                  <p className="text-sm text-cocoa/70">Find the right fit for your print.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowSizeChart(false)}
+                  className="rounded-full border border-cocoa/15 bg-white p-2 text-cocoa hover:bg-cocoa/5"
+                  aria-label="Close size chart"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm text-cocoa">
+                  <thead>
+                    <tr className="bg-cream text-left text-xs uppercase tracking-[0.3em] text-cocoa/70">
+                      <th className="border-b border-cocoa/10 px-3 py-3">Size</th>
+                      <th className="border-b border-cocoa/10 px-3 py-3">Bust</th>
+                      <th className="border-b border-cocoa/10 px-3 py-3">Waist</th>
+                      <th className="border-b border-cocoa/10 px-3 py-3">Hip</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-cocoa/10">
+                      <td className="px-3 py-3 font-semibold">S</td>
+                      <td className="px-3 py-3">34–35 in (86–89 cm)</td>
+                      <td className="px-3 py-3">28–29 in (71–74 cm)</td>
+                      <td className="px-3 py-3">37–38 in (94–97 cm)</td>
+                    </tr>
+                    <tr className="border-b border-cocoa/10 bg-cream/50">
+                      <td className="px-3 py-3 font-semibold">M</td>
+                      <td className="px-3 py-3">36–37 in (91–94 cm)</td>
+                      <td className="px-3 py-3">30–31 in (76–79 cm)</td>
+                      <td className="px-3 py-3">39–40 in (99–102 cm)</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-3 font-semibold">L</td>
+                      <td className="px-3 py-3">38–39 in (97–99 cm)</td>
+                      <td className="px-3 py-3">32–33 in (81–84 cm)</td>
+                      <td className="px-3 py-3">41–42 in (104–107 cm)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         <button
           type="button"
           onClick={() => {
@@ -215,14 +293,13 @@ export function ProductCard({
               alert("Please select a size before adding to cart");
               return;
             }
+
             addToCart(product, printName, selectedSize);
             setIsAdded(true);
             setTimeout(() => setIsAdded(false), 2000);
           }}
           className={`w-full rounded-full px-5 py-3 text-sm font-medium transition hover:-translate-y-0.5 ${
-            isAdded
-              ? "bg-leaf text-cream"
-              : "bg-cocoa text-cream"
+            isAdded ? "bg-leaf text-cream" : "bg-cocoa text-cream"
           }`}
         >
           {isAdded ? "✓ Added to cart" : "Add to cart"}
@@ -393,7 +470,7 @@ export function CartExperience({
             cart.map((item) => (
               <div
                 key={`${item.slug}-${item.size}`}
-                onClick={() => router.push(`/product/${item.slug}`)}
+                onClick={() => router.push(`/product/${encodeURIComponent(item.slug)}`)}
                 className="grid gap-4 rounded-[2rem] border border-white/60 bg-white p-4 shadow-soft md:grid-cols-[140px_1fr] transition hover:shadow-md hover:border-white/80 cursor-pointer"
               >
                 <MediaPanel
@@ -489,14 +566,14 @@ export function CartExperience({
         <SectionHeader
           eyebrow="Keep the print story going"
           title="More silhouettes to pair with your cart"
-          description="Since Aakaar is print-first, the smartest cross-sell is often another form in the same print family."
+          description="Since Clozet is print-first, the smartest cross-sell is often another form in the same print family."
         />
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {suggestedProducts.map((product) => (
             <ProductCard
               key={product.slug}
               product={product}
-              printName={printNames[product.printId] ?? "Aakaar Print"}
+              printName={printNames[product.printId] ?? "Clozet Print"}
             />
           ))}
         </div>

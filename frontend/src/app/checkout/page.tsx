@@ -5,7 +5,7 @@ export default function CheckoutPage() {
     <div className="space-y-8 pb-8">
       <SectionHeader
         eyebrow="Minimal checkout"
-        title="Finish your Aakaar order"
+        title="Finish your Clozet order"
         description="Keep the form clean, the hierarchy calm, and the order summary visible."
       />
       <CheckoutExperience />

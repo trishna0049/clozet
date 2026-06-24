@@ -8,7 +8,7 @@ export default async function WishlistPage() {
     await Promise.all(
       allProducts.map(async (product) => [
         product.printId,
-        (await getPrintForProduct(product))?.name ?? "Aakaar Print"
+        (await getPrintForProduct(product))?.name ?? "Clozet Print"
       ])
     )
   );

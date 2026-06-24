@@ -75,7 +75,7 @@ export function WishlistClient({ products, printNames }: { products: Product[]; 
               <ProductCard
                 key={product.slug}
                 product={product}
-                printName={printNames[product.printId] ?? "Aakaar Print"}
+                printName={printNames[product.printId] ?? "Clozet Print"}
               />
             ))}
           </div>

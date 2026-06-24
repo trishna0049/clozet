@@ -8,7 +8,7 @@ export default async function CartPage() {
     await Promise.all(
       products.map(async (product) => [
         product.printId,
-        (await getPrintForProduct(product))?.name ?? "Aakaar Print"
+        (await getPrintForProduct(product))?.name ?? "Clozet Print"
       ])
     )
   );

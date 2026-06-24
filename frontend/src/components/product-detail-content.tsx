@@ -88,7 +88,7 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
               <ProductCard
                 key={item.slug}
                 product={item}
-                printName={item.printId ? "Aakaar Print" : print.name}
+                printName={item.printId ? "Clozet Print" : print.name}
               />
             ))}
           </div>

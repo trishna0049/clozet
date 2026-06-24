@@ -5,7 +5,7 @@ import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
-  title: "Aakaar | Choose the Print. We Shape the Style.",
+  title: "Clozet | Choose the Print. We Shape the Style.",
   description: "Print-first fashion commerce for design-led wardrobes."
 };
 

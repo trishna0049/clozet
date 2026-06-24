@@ -59,11 +59,11 @@ export default function LoginPage() {
     "w-full px-4 py-3 bg-cream border border-cocoa/20 rounded-lg text-cocoa placeholder-cocoa/50 focus:outline-none focus:border-cocoa/60 focus:ring-1 focus:ring-cocoa/20 transition";
 
   return (
-    <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
+    <div className="min-h-[calc(100vh-60px)] flex items-start justify-center pt-4 pb-4 px-4">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="font-display text-4xl text-cocoa mb-2">Welcome Back</h1>
+        <div className="text-center mb-4">
+          <h1 className="font-display text-3xl text-cocoa mb-1">Welcome Back</h1>
           <p className="text-cocoa/70">Sign in to your account to continue</p>
         </div>
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleLogin} className="space-y-5" suppressHydrationWarning>
+        <form onSubmit={handleLogin} className="space-y-4" suppressHydrationWarning>
           {/* Email / Phone Toggle */}
           <div className="flex gap-2 mb-6 p-1 bg-cream border border-cocoa/10 rounded-lg">
             <button
@@ -154,7 +154,7 @@ export default function LoginPage() {
         </form>
 
         {/* Divider */}
-        <div className="my-6 flex items-center gap-3">
+        <div className="my-4 flex items-center gap-3">
           <div className="flex-1 h-px bg-cocoa/10"></div>
           <span className="text-sm text-cocoa/60">or continue with</span>
           <div className="flex-1 h-px bg-cocoa/10"></div>
@@ -188,7 +188,7 @@ export default function LoginPage() {
         </button>
 
         {/* Sign Up Link */}
-        <p className="mt-8 text-center text-cocoa/70">
+        <p className="mt-6 text-center text-cocoa/70">
           Don't have an account?{" "}
           <Link href="/signup" className="font-medium text-cocoa hover:text-cocoa/70">
             Sign up

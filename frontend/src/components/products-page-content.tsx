@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { ProductCard, SectionHeader } from "@/components/catalog-ui";
+import { useMemo, useRef, useState, type SyntheticEvent } from "react";
+import { ProductCard } from "@/components/catalog-ui";
 import type { Product } from "@/types/catalog";
 
 const PRODUCT_CATEGORIES = ["Tops", "Dresses", "Co-ords", "Shirts", "Kurtis"];
@@ -35,9 +35,12 @@ const CATEGORY_SEARCH_TERMS: Record<string, string> = {
 interface ProductsPageContentProps {
   products: Product[];
   printNames: Record<string, string>;
+  searchTerm: string;
 }
 
-export function ProductsPageContent({ products, printNames }: ProductsPageContentProps) {
+export function ProductsPageContent({ products, printNames, searchTerm }: ProductsPageContentProps) {
+  console.count("ProductsPageContent");
+
   // Filter states
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [selectedPrintCategories, setSelectedPrintCategories] = useState<Set<string>>(new Set());
@@ -47,6 +50,24 @@ export function ProductsPageContent({ products, printNames }: ProductsPageConten
   const [selectedColors, setSelectedColors] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState("popularity");
   const [showAllPrints, setShowAllPrints] = useState(false);
+  const dropdownRefs = useRef<Array<HTMLDetailsElement | null>>([]);
+
+  const setDropdownRef = (index: number) => (node: HTMLDetailsElement | null) => {
+    dropdownRefs.current[index] = node;
+  };
+
+  const handleDropdownToggle = (index: number) => (event: SyntheticEvent<HTMLDetailsElement>) => {
+    const current = event.currentTarget;
+    if (!current.open) {
+      return;
+    }
+
+    dropdownRefs.current.forEach((dropdown, dropdownIndex) => {
+      if (dropdownIndex !== index && dropdown?.open) {
+        dropdown.open = false;
+      }
+    });
+  };
 
   // Get unique filter options
   const filterOptions = useMemo(() => {
@@ -76,9 +97,29 @@ export function ProductsPageContent({ products, printNames }: ProductsPageConten
 
   // Filter products
   const filteredProducts = useMemo(() => {
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
     let filtered = products.filter(product => {
       const printName = printNames[product.slug] || "Unknown";
       
+      // Search filter
+      if (normalizedSearchTerm) {
+        const productText = [
+          product.title,
+          product.silhouette,
+          product.description,
+          product.details?.join(" "),
+          printName
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        if (!productText.includes(normalizedSearchTerm)) {
+          return false;
+        }
+      }
+
       // Price filter
       if (product.price < priceRange[0] || product.price > priceRange[1]) {
         return false;
@@ -222,55 +263,61 @@ export function ProductsPageContent({ products, printNames }: ProductsPageConten
 
   return (
     <div className="space-y-8 pb-8" suppressHydrationWarning>
-      <SectionHeader
-        title="All Products"
-        description="Explore all silhouettes and prints from our collection"
-      />
+      {searchTerm.trim().length > 0 && (
+        <div className="rounded-[1.5rem] border border-white/70 bg-white p-4 shadow-soft text-sm text-cocoa/80">
+          Showing results for <span className="font-semibold text-cocoa">"{searchTerm.trim()}"</span>
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filter Panel */}
-        <div className="lg:col-span-1">
-          <div className="rounded-[1.5rem] border border-white/70 bg-white p-6 shadow-soft">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-display text-lg font-semibold text-cocoa">Filters</h3>
-              {(selectedPrintCategories.size > 0 || selectedProductCategories.size > 0 || selectedSizes.size > 0 || selectedSleeves.size > 0 || selectedColors.size > 0 ||
-                priceRange[0] > filterOptions.priceRange.min || priceRange[1] < filterOptions.priceRange.max) && (
-                <button
-                  onClick={clearFilters}
-                  className="text-xs text-cocoa/60 hover:text-cocoa underline"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
+      <div className="space-y-8">
+        <div className="rounded-[1.5rem] border border-white/70 bg-white p-4 shadow-soft">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <details className="group relative" ref={setDropdownRef(0)} onToggle={handleDropdownToggle(0)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+                <span>Sort by</span>
+              </summary>
+              <div className="absolute left-0 top-full z-30 mt-2 w-56 rounded-xl border border-white/70 bg-white p-2 shadow-soft space-y-2 text-sm text-cocoa/72">
+                {SORT_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setSortBy(option.value)}
+                    className={`block w-full rounded px-2 py-1 text-left transition ${
+                      sortBy === option.value
+                        ? "bg-cocoa text-cream"
+                        : "bg-cream text-cocoa hover:bg-cocoa/5"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </details>
 
-            {/* Price Range Filter */}
-            <div className="mb-8">
-              <h4 className="font-semibold text-cocoa mb-4">Price Range</h4>
-              <div className="space-y-4">
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <input
-                      type="number"
-                      min={filterOptions.priceRange.min}
-                      max={filterOptions.priceRange.max}
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
-                      className="w-full px-2 py-1 border border-cocoa/30 rounded text-sm"
-                      placeholder="Min"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <input
-                      type="number"
-                      min={filterOptions.priceRange.min}
-                      max={filterOptions.priceRange.max}
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                      className="w-full px-2 py-1 border border-cocoa/30 rounded text-sm"
-                      placeholder="Max"
-                    />
-                  </div>
+            <details className="group relative" ref={setDropdownRef(1)} onToggle={handleDropdownToggle(1)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+                <span>Price</span>
+              </summary>
+              <div className="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-4 text-sm text-cocoa/72">
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <input
+                    type="number"
+                    min={filterOptions.priceRange.min}
+                    max={filterOptions.priceRange.max}
+                    value={priceRange[0]}
+                    onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
+                    className="w-full px-3 py-2 border border-cocoa/30 rounded text-sm"
+                    placeholder="Min"
+                  />
+                  <input
+                    type="number"
+                    min={filterOptions.priceRange.min}
+                    max={filterOptions.priceRange.max}
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                    className="w-full px-3 py-2 border border-cocoa/30 rounded text-sm"
+                    placeholder="Max"
+                  />
                 </div>
                 <div className="space-y-2">
                   <input
@@ -290,16 +337,17 @@ export function ProductsPageContent({ products, printNames }: ProductsPageConten
                     className="w-full"
                   />
                 </div>
-                <div className="text-sm text-cocoa/72">
-                  ₹{priceRange[0]} - ₹{priceRange[1]}
-                </div>
               </div>
-            </div>
+            </details>
 
-            {/* Category Filter */}
-            <div className="mb-8">
-              <h4 className="font-semibold text-cocoa mb-4">Category</h4>
-              <div className="space-y-3">
+            <details className="group relative" ref={setDropdownRef(2)} onToggle={handleDropdownToggle(2)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+                <span>Category</span>
+                {selectedProductCategories.size > 0 && (
+                  <span className="text-cocoa/60 text-xs">{selectedProductCategories.size} selected</span>
+                )}
+              </summary>
+              <div className="absolute left-0 top-full z-30 mt-2 w-56 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                 {filterOptions.productCategories.map((category) => (
                   <label key={category} className="flex items-center gap-3 cursor-pointer">
                     <input
@@ -308,16 +356,20 @@ export function ProductsPageContent({ products, printNames }: ProductsPageConten
                       onChange={() => toggleProductCategory(category)}
                       className="w-4 h-4 rounded border-cocoa/30"
                     />
-                    <span className="text-sm text-cocoa/72">{category}</span>
+                    <span>{category}</span>
                   </label>
                 ))}
               </div>
-            </div>
+            </details>
 
-            {/* Size Filter */}
-            <div className="mb-8">
-              <h4 className="font-semibold text-cocoa mb-4">Sizes</h4>
-              <div className="space-y-3">
+            <details className="group relative" ref={setDropdownRef(3)} onToggle={handleDropdownToggle(3)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+                <span>Size</span>
+                {selectedSizes.size > 0 && (
+                  <span className="text-cocoa/60 text-xs">{selectedSizes.size} selected</span>
+                )}
+              </summary>
+              <div className="absolute left-0 top-full z-30 mt-2 w-48 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                 {filterOptions.sizes.map((size) => (
                   <label key={size} className="flex items-center gap-3 cursor-pointer">
                     <input
@@ -326,16 +378,20 @@ export function ProductsPageContent({ products, printNames }: ProductsPageConten
                       onChange={() => toggleSize(size)}
                       className="w-4 h-4 rounded border-cocoa/30"
                     />
-                    <span className="text-sm text-cocoa/72">{size}</span>
+                    <span>{size}</span>
                   </label>
                 ))}
               </div>
-            </div>
+            </details>
 
-            {/* Sleeve Filter */}
-            <div className="mb-8">
-              <h4 className="font-semibold text-cocoa mb-4">Sleeves</h4>
-              <div className="space-y-3">
+            <details className="group relative" ref={setDropdownRef(4)} onToggle={handleDropdownToggle(4)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+                <span>Sleeves</span>
+                {selectedSleeves.size > 0 && (
+                  <span className="text-cocoa/60 text-xs">{selectedSleeves.size} selected</span>
+                )}
+              </summary>
+              <div className="absolute left-0 top-full z-30 mt-2 w-56 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                 {filterOptions.sleeves.map((sleeve) => (
                   <label key={sleeve} className="flex items-center gap-3 cursor-pointer">
                     <input
@@ -344,16 +400,20 @@ export function ProductsPageContent({ products, printNames }: ProductsPageConten
                       onChange={() => toggleSleeve(sleeve)}
                       className="w-4 h-4 rounded border-cocoa/30"
                     />
-                    <span className="text-sm text-cocoa/72">{sleeve}</span>
+                    <span>{sleeve}</span>
                   </label>
                 ))}
               </div>
-            </div>
+            </details>
 
-            {/* Print Filter */}
-            <div className="mb-8">
-              <h4 className="font-semibold text-cocoa mb-4">Print</h4>
-              <div className="space-y-3">
+            <details className="group relative" ref={setDropdownRef(5)} onToggle={handleDropdownToggle(5)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+                <span>Print</span>
+                {selectedPrintCategories.size > 0 && (
+                  <span className="text-cocoa/60 text-xs">{selectedPrintCategories.size} selected</span>
+                )}
+              </summary>
+              <div className="absolute left-0 top-full z-30 mt-2 w-64 max-h-80 overflow-auto rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                 {displayedPrints.map((print) => (
                   <label key={print} className="flex items-center gap-3 cursor-pointer">
                     <input
@@ -362,33 +422,39 @@ export function ProductsPageContent({ products, printNames }: ProductsPageConten
                       onChange={() => togglePrintCategory(print)}
                       className="w-4 h-4 rounded border-cocoa/30"
                     />
-                    <span className="text-sm text-cocoa/72">{print}</span>
+                    <span>{print}</span>
                   </label>
                 ))}
+                {!showAllPrints && filterOptions.printNames.length > 5 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllPrints(true)}
+                    className="mt-3 text-sm text-cocoa/60 hover:text-cocoa underline"
+                  >
+                    View All Prints ({filterOptions.printNames.length})
+                  </button>
+                )}
+                {showAllPrints && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllPrints(false)}
+                    className="mt-3 text-sm text-cocoa/60 hover:text-cocoa underline"
+                  >
+                    View Less
+                  </button>
+                )}
               </div>
-              {!showAllPrints && filterOptions.printNames.length > 5 && (
-                <button
-                  onClick={() => setShowAllPrints(true)}
-                  className="mt-3 text-sm text-cocoa/60 hover:text-cocoa underline"
-                >
-                  View All Prints ({filterOptions.printNames.length})
-                </button>
-              )}
-              {showAllPrints && (
-                <button
-                  onClick={() => setShowAllPrints(false)}
-                  className="mt-3 text-sm text-cocoa/60 hover:text-cocoa underline"
-                >
-                  View Less
-                </button>
-              )}
-            </div>
+            </details>
 
-            {/* Colour Filter */}
             {filterOptions.colors.length > 0 && (
-              <div className="mb-8">
-                <h4 className="font-semibold text-cocoa mb-4">Colour</h4>
-                <div className="space-y-3">
+              <details className="group relative" ref={setDropdownRef(6)} onToggle={handleDropdownToggle(6)}>
+                <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+                  <span>Colour</span>
+                  {selectedColors.size > 0 && (
+                    <span className="text-cocoa/60 text-xs">{selectedColors.size} selected</span>
+                  )}
+                </summary>
+                <div className="absolute left-0 top-full z-30 mt-2 w-56 max-h-80 overflow-auto rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                   {filterOptions.colors.map((color) => (
                     <label key={color} className="flex items-center gap-3 cursor-pointer">
                       <input
@@ -397,53 +463,43 @@ export function ProductsPageContent({ products, printNames }: ProductsPageConten
                         onChange={() => toggleColor(color)}
                         className="w-4 h-4 rounded border-cocoa/30"
                       />
-                      <span className="text-sm text-cocoa/72">{color}</span>
+                      <span>{color}</span>
                     </label>
                   ))}
                 </div>
-              </div>
+              </details>
+            )}
+
+            {(selectedPrintCategories.size > 0 || selectedProductCategories.size > 0 || selectedSizes.size > 0 || selectedSleeves.size > 0 || selectedColors.size > 0 ||
+              priceRange[0] > filterOptions.priceRange.min || priceRange[1] < filterOptions.priceRange.max) && (
+              <button
+                onClick={clearFilters}
+                className="ml-auto text-sm text-cocoa/60 hover:text-cocoa underline"
+              >
+                Clear filters
+              </button>
             )}
           </div>
         </div>
 
-        {/* Products Grid */}
-        <div className="lg:col-span-3">
-          <div className="flex items-center justify-between mb-6">
-            <div className="text-sm text-cocoa/60">
-              Showing {filteredProducts.length} of {products.length} products
+        <div className="space-y-6">
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.slug}
+                  product={product}
+                  printName={printNames[product.slug] ?? "Clozet Print"}
+                  compact
+                />
+              ))}
             </div>
-            <div className="flex items-center gap-2">
-              <label htmlFor="sort" className="text-sm font-medium text-cocoa">Sort by:</label>
-              <select
-                id="sort"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-1 border border-cocoa/30 rounded text-sm text-cocoa bg-white"
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-cocoa/60">No products match your filters</p>
+              </div>
+            )}
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.slug}
-                product={product}
-                printName={printNames[product.slug] ?? "Aakaar Print"}
-              />
-            ))}
-          </div>
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-cocoa/60">No products match your filters</p>
-            </div>
-          )}
         </div>
-      </div>
     </div>
   );
 }

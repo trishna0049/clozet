@@ -3,7 +3,7 @@ import { signCloudinaryUpload } from "@/lib/cloudinary";
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const folder = body.folder || "aakaar";
+  const folder = body.folder || "clozet";
   const timestamp = Math.round(Date.now() / 1000);
   const paramsToSign = {
     folder,

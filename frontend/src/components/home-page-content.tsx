@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRealtimePrints } from "@/hooks/useRealtimePrints";
 import { useRealtimeProducts } from "@/hooks/useRealtimeProducts";
 import {
@@ -25,7 +26,7 @@ const reviews = [
     name: "Manya",
     city: "Delhi",
     rating: 5,
-    quote: "The same print across multiple silhouettes is the whole reason I bookmarked Aakaar."
+    quote: "The same print across multiple silhouettes is the whole reason I bookmarked Clozet."
   },
   {
     id: "rev-3",
@@ -36,22 +37,20 @@ const reviews = [
   }
 ];
 
+const HERO_BG_IMAGE = "https://res.cloudinary.com/di67gryqm/image/upload/v1781969688/home_page_clozet_ysnfvv.jpg";
+
 export function HomePageContent() {
   const { prints: allPrints, loading: printsLoading } = useRealtimePrints();
   const { products: trendingProducts, loading: productsLoading } = useRealtimeProducts();
 
-  // Get featured prints
-  const featuredPrints = useMemo(() => allPrints.filter((print) => print.featured).slice(0, 4), [allPrints]);
+  // Get all prints for the moving marquee
+  const featuredPrints = useMemo(() => allPrints, [allPrints]);
 
   // Get trending products
   const trendingProductsFiltered = useMemo(
     () =>
       trendingProducts
-        .filter((product) =>
-          ["Bestseller", "Trending", "Co-ord Hero", "Modern Muse", "Editor Pick"].includes(
-            product.badge ?? ""
-          )
-        )
+        .filter((product) => product.badge === "Bestseller")
         .slice(0, 6),
     [trendingProducts]
   );
@@ -72,7 +71,7 @@ export function HomePageContent() {
     const names: Record<string, string> = {};
     trendingProductsFiltered.forEach((product) => {
       const print = allPrints.find((p) => p.id === product.printId);
-      names[product.slug] = print?.name ?? "Aakaar Print";
+      names[product.slug] = print?.name ?? "Clozet Print";
     });
     return names;
   }, [trendingProductsFiltered, allPrints]);
@@ -81,7 +80,7 @@ export function HomePageContent() {
     const names: Record<string, string> = {};
     newArrivals.forEach((product) => {
       const print = allPrints.find((p) => p.id === product.printId);
-      names[product.slug] = print?.name ?? "Aakaar Print";
+      names[product.slug] = print?.name ?? "Clozet Print";
     });
     return names;
   }, [newArrivals, allPrints]);
@@ -91,22 +90,42 @@ export function HomePageContent() {
   }
 
   return (
-    <div className="space-y-20 pb-8">
-      <section className="grid gap-8 overflow-hidden rounded-[2.5rem] border border-white/70 bg-print-grid p-8 shadow-soft lg:p-12 grid-cols-1 lg:grid-cols-3 relative">
-        <div className="flex flex-col justify-between lg:col-span-2 z-10">
+    <div className="pb-8">
+      <section className="flex justify-center">
+        <div className="flex h-[1cm] w-full items-center justify-center gap-2 bg-cocoa px-4 text-center text-sm font-medium uppercase tracking-[0.22em] leading-none text-cream sm:px-6">
+          <span>Use</span>
+          <span>code</span>
+          <span className="font-semibold">CLOZET10</span>
+          <span>to get 10% off on your first purchase</span>
+        </div>
+      </section>
+
+      <section className="relative flex h-[700px] items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <Image
+            src={HERO_BG_IMAGE}
+            alt=""
+            fill
+            priority
+            unoptimized
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/82 to-white/55" />
+        </div>
+        <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center justify-center text-center">
           <div>
-            <h1 className="mt-5 max-w-3xl font-display text-6xl leading-[0.92] text-cocoa md:text-8xl">
-              Choose the Print.
+            <h1 className="mt-5 mx-auto max-w-5xl font-display text-6xl leading-[0.92] text-cocoa md:text-8xl text-center">
+              <span className="whitespace-nowrap">Choose the Print</span>
               <br />
-              We Shape the Style.
+              <span className="whitespace-nowrap">We Shape the Style</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-cocoa/72">
-              Aakaar flips fashion discovery. You begin with the artwork you love, then explore
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-cocoa/72">
+              Clozet flips fashion discovery. You begin with the artwork you love, then explore
               every silhouette cut in that exact print.
             </p>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-4">
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
               href="/shop"
               className="rounded-full bg-cocoa px-6 py-3 text-sm font-medium uppercase tracking-[0.25em] text-cream"
@@ -123,50 +142,59 @@ export function HomePageContent() {
         </div>
       </section>
 
-      <section className="space-y-8">
-        <SectionHeader
-          eyebrow="Main focus"
-          title="Shop by Print"
-          description="This is the core Aakaar behavior. Prints are the entry point, and silhouettes are the options inside each print story."
-          actionLabel="See all prints"
-          actionHref="/shop"
-        />
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {featuredPrints.map((print) => (
-            <PrintCard key={print.slug} item={print} />
-          ))}
-        </div>
-      </section>
+      <div className="mt-12 w-full px-[1cm]">
+        <section className="mt-8 mb-[1cm] space-y-8">
+          <SectionHeader
+            title="Shop by Print"
+            actionLabel="See all prints"
+            actionHref="/shop"
+          />
+          <div className="overflow-hidden">
+            <div className="flex w-max animate-marquee will-change-transform">
+              {[...featuredPrints, ...featuredPrints].map((print, index) => (
+                <div
+                  key={`${print.slug}-${index}`}
+                  className="mr-6 w-[280px] shrink-0 sm:w-[320px] xl:w-[340px]"
+                >
+                  <PrintCard item={print} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-      <section className="space-y-8">
-        <SectionHeader
-          title="Best forms across your favorite prints"
-        />
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {trendingProductsFiltered.map((product) => (
-            <ProductCard
-              key={product.slug}
-              product={product}
-              printName={trendingPrintNames[product.slug] ?? "Aakaar Print"}
-            />
-          ))}
-        </div>
-      </section>
+        <section className="mb-[1cm] space-y-8">
+          <div className="space-y-4 text-left">
+            <h2 className="font-display text-4xl leading-tight text-cocoa md:text-5xl whitespace-nowrap">
+              Bestsellers
+            </h2>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
+            {trendingProductsFiltered.map((product) => (
+              <ProductCard
+                key={product.slug}
+                product={product}
+                printName={trendingPrintNames[product.slug] ?? "Clozet Print"}
+              />
+            ))}
+          </div>
+        </section>
 
-      <section id="new-arrivals" className="space-y-8">
-        <SectionHeader
-          title="New arrivals"
-        />
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {newArrivals.map((product) => (
-            <ProductCard
-              key={product.slug}
-              product={product}
-              printName={newArrivalPrintNames[product.slug] ?? "Aakaar Print"}
-            />
-          ))}
-        </div>
-      </section>
+        <section id="new-arrivals" className="space-y-8">
+          <SectionHeader
+            title="New arrivals"
+          />
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
+            {newArrivals.map((product) => (
+              <ProductCard
+                key={product.slug}
+                product={product}
+                printName={newArrivalPrintNames[product.slug] ?? "Clozet Print"}
+              />
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

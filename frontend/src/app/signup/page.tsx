@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Eye, EyeOff, ChevronDown } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 interface FormData {
   fullName: string;
@@ -21,9 +21,6 @@ interface FormData {
   country: string;
 }
 
-const COUNTRIES = ["United States", "Canada", "United Kingdom", "Australia", "India", "Other"];
-const STATES_US = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"];
-
 export default function SignupPage() {
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
@@ -37,7 +34,7 @@ export default function SignupPage() {
     city: "",
     state: "",
     zipCode: "",
-    country: "United States"
+    country: "India"
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -91,7 +88,7 @@ export default function SignupPage() {
 
     try {
       const { data, error: signupError } = await supabase.auth.signUp({
-        email: formData.email || `${formData.phone}@phone.aakaar.local`,
+        email: formData.email || `${formData.phone}@phone.clozet.local`,
         password: formData.password,
         options: {
           data: {
@@ -281,71 +278,30 @@ export default function SignupPage() {
                   />
                 </div>
 
-                {/* Country */}
-                <div>
-                  <label className="block text-sm font-medium text-cocoa mb-1">Country</label>
-                  <div className="relative">
-                    <select
-                      name="country"
-                      value={formData.country}
-                      onChange={handleInputChange}
-                      className={`${inputFieldClass} appearance-none pr-10`}
-                    >
-                      {COUNTRIES.map((country) => (
-                        <option key={country} value={country}>
-                          {country}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cocoa/60 pointer-events-none" />
-                  </div>
-                </div>
-
                 {/* State / Province */}
                 <div>
-                  <label className="block text-sm font-medium text-cocoa mb-1">
-                    {formData.country === "United States" ? "State" : "State / Province"}
-                  </label>
-                  {formData.country === "United States" ? (
-                    <div className="relative">
-                      <select
-                        name="state"
-                        value={formData.state}
-                        onChange={handleInputChange}
-                        className={`${inputFieldClass} appearance-none pr-10`}
-                      >
-                        <option value="">Select a state</option>
-                        {STATES_US.map((state) => (
-                          <option key={state} value={state}>
-                            {state}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cocoa/60 pointer-events-none" />
-                    </div>
-                  ) : (
-                    <input
-                      type="text"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      placeholder="State or Province"
-                      className={inputFieldClass}
-                    />
-                  )}
+                  <label className="block text-sm font-medium text-cocoa mb-1">State / Province</label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    placeholder="State or Province"
+                    className={inputFieldClass}
+                  />
                 </div>
 
-                {/* Zip Code */}
+                {/* Pincode */}
                 <div>
                   <label className="block text-sm font-medium text-cocoa mb-1">
-                    {formData.country === "United States" ? "ZIP Code" : "Postal Code"}
+                    Pincode
                   </label>
                   <input
                     type="text"
                     name="zipCode"
                     value={formData.zipCode}
                     onChange={handleInputChange}
-                    placeholder={formData.country === "United States" ? "10001" : "A1A 1A1"}
+                    placeholder="110001"
                     className={inputFieldClass}
                   />
                 </div>

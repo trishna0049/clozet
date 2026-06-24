@@ -14,6 +14,7 @@ export function useRealtimeProductDetail(slug: string) {
   const decodedSlug = decodeURIComponent(slug);
 
   const fetchProductDetail = useCallback(async () => {
+    console.debug(`useRealtimeProductDetail: fetchProductDetail called for slug=${decodedSlug}`);
     try {
       setLoading(true);
       const supabase = createClient();
@@ -28,6 +29,7 @@ export function useRealtimeProductDetail(slug: string) {
         .single();
 
       if (productError) {
+        console.debug("useRealtimeProductDetail: productError", productError);
         throw productError;
       }
 
@@ -81,6 +83,8 @@ export function useRealtimeProductDetail(slug: string) {
         .eq("print_id", productData.print_id)
         .order("created_at", { ascending: false });
 
+      console.debug(`useRealtimeProductDetail: fetched product ${productData.slug}, siblings count=${(siblingRows||[]).length}`);
+
       const mappedSiblings = (siblingRows || [])
         .filter((item: any) => item.slug !== slug)
         .map((row: any) => {
@@ -111,6 +115,8 @@ export function useRealtimeProductDetail(slug: string) {
       const { data: allPrints } = await supabase
         .from("prints")
         .select("id, category");
+
+      console.debug(`useRealtimeProductDetail: allProducts=${(allProducts||[]).length}, allPrints=${(allPrints||[]).length}`);
 
       const categoryPrintIds = new Set(
         (allPrints || [])
@@ -151,6 +157,7 @@ export function useRealtimeProductDetail(slug: string) {
       setRecommendations(mappedRecommendations);
       setError(null);
     } catch (err) {
+      console.debug("useRealtimeProductDetail: fetch error", err);
       setError(err instanceof Error ? err : new Error("Failed to fetch product details"));
       setProduct(null);
       setPrint(null);
@@ -164,44 +171,6 @@ export function useRealtimeProductDetail(slug: string) {
   useEffect(() => {
     // Initial fetch
     fetchProductDetail();
-
-    const supabase = createClient();
-
-    // Subscribe to realtime changes
-    const subscription = supabase
-      .channel("product-detail-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "products"
-        },
-        () => {
-          fetchProductDetail();
-        }
-      )
-      .subscribe();
-
-    const printsSubscription = supabase
-      .channel("product-prints-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "prints"
-        },
-        () => {
-          fetchProductDetail();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(subscription);
-      supabase.removeChannel(printsSubscription);
-    };
   }, [fetchProductDetail]);
 
   return { product, print, siblingProducts, recommendations, loading, error };

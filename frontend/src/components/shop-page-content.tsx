@@ -106,7 +106,7 @@ export function ShopPageContent({ initialCategory = "All" }: ShopPageContentProp
                   const url = category === "All" ? "/shop" : `/shop?category=${encodeURIComponent(category)}`;
                   window.history.pushState({}, "", url);
                 }}
-                className={`rounded-full px-4 py-2 text-sm uppercase tracking-[0.25em] transition ${
+                className={`rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em] transition ${
                   active ? "bg-cocoa text-cream" : "bg-cream text-cocoa"
                 }`}
               >
@@ -135,7 +135,7 @@ export function ShopPageContent({ initialCategory = "All" }: ShopPageContentProp
                 <button
                   key={color}
                   onClick={() => toggleColor(color)}
-                  className={`rounded-full px-4 py-2 text-sm uppercase tracking-[0.25em] transition ${
+                  className={`rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em] transition ${
                     selectedColors.has(color)
                       ? "bg-cocoa text-cream"
                       : "bg-cream text-cocoa hover:bg-cocoa/5"
@@ -155,7 +155,7 @@ export function ShopPageContent({ initialCategory = "All" }: ShopPageContentProp
             Showing {filteredPrints.length} of {allPrints.length} prints
           </div>
 
-          <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <section className="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
             {filteredPrints.map((print) => (
               <PrintCard key={print.slug} item={print} />
             ))}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 interface AddressData {
   street: string;
@@ -16,9 +16,6 @@ interface AddressData {
   phone: string;
   receiverName: string;
 }
-
-const COUNTRIES = ["United States", "Canada", "United Kingdom", "Australia", "India", "Other"];
-const STATES_US = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"];
 
 export default function EditProfilePage() {
   const [user, setUser] = useState<any>({
@@ -32,7 +29,7 @@ export default function EditProfilePage() {
     city: "",
     state: "",
     zipCode: "",
-    country: "United States",
+    country: "India",
     label: "Home",
     phone: "",
     receiverName: ""
@@ -239,74 +236,31 @@ export default function EditProfilePage() {
             />
           </div>
 
-          {/* Country */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-cocoa mb-2">Country</label>
-            <div className="relative">
-              <select
-                name="country"
-                value={address.country}
-                onChange={handleAddressChange}
-                className={`${inputFieldClass} appearance-none pr-10`}
-                required
-              >
-                {COUNTRIES.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cocoa/60 pointer-events-none" />
-            </div>
-          </div>
-
           {/* State / Province */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-cocoa mb-2">
-              {address.country === "United States" ? "State" : "State / Province"}
-            </label>
-            {address.country === "United States" ? (
-              <div className="relative">
-                <select
-                  name="state"
-                  value={address.state}
-                  onChange={handleAddressChange}
-                  className={`${inputFieldClass} appearance-none pr-10`}
-                  required
-                >
-                  <option value="">Select a state</option>
-                  {STATES_US.map((state) => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cocoa/60 pointer-events-none" />
-              </div>
-            ) : (
-              <input
-                type="text"
-                name="state"
-                value={address.state}
-                onChange={handleAddressChange}
-                placeholder="Province"
-                className={inputFieldClass}
-                required
-              />
-            )}
+            <label className="block text-sm font-medium text-cocoa mb-2">State / Province</label>
+            <input
+              type="text"
+              name="state"
+              value={address.state}
+              onChange={handleAddressChange}
+              placeholder="State or Province"
+              className={inputFieldClass}
+              required
+            />
           </div>
 
-          {/* Zip / Postal Code */}
+          {/* Pincode */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-cocoa mb-2">
-              {address.country === "United States" ? "ZIP Code" : "Postal Code"}
+              Pincode
             </label>
             <input
               type="text"
               name="zipCode"
               value={address.zipCode}
               onChange={handleAddressChange}
-              placeholder={address.country === "United States" ? "10001" : "A1A 1A1"}
+              placeholder="110001"
               className={inputFieldClass}
               required
             />

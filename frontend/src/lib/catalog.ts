@@ -32,7 +32,7 @@ type ProductRow = {
 };
 
 export const brand: Brand = {
-  name: "Aakaar",
+  name: "Clozet",
   meaning: "Form or Shape",
   tagline: "Choose the Print. We Shape the Style.",
   description:
@@ -52,7 +52,7 @@ export const reviews: Review[] = [
     name: "Manya",
     city: "Delhi",
     rating: 5,
-    quote: "The same print across multiple silhouettes is the whole reason I bookmarked Aakaar."
+    quote: "The same print across multiple silhouettes is the whole reason I bookmarked Clozet."
   },
   {
     id: "rev-3",

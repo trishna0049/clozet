@@ -1,5 +1,5 @@
 {
-  "name": "@aakaar/frontend",
+  "name": "@clozet/frontend",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -15,7 +15,7 @@
     "cloudinary": "^2.7.0",
     "dotenv": "^17.4.2",
     "lucide-react": "^0.439.0",
-    "next": "^14.2.35",
+    "next": "^16.2.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

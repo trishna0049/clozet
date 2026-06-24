@@ -24,12 +24,7 @@ export function useRealtimePrintDetail(slug: string) {
         .eq("slug", decodedSlug)
         .single();
 
-      console.log("=== fetchPrintDetail RESPONSE ===", { 
-        data: printResponse.data,
-        error: printResponse.error,
-        status: printResponse.status,
-        statusText: printResponse.statusText
-      });
+      console.log("=== fetchPrintDetail RESPONSE ===", printResponse);
 
       const { data: printData, error: printError } = printResponse;
 
@@ -44,6 +39,11 @@ export function useRealtimePrintDetail(slug: string) {
         throw printError;
       }
 
+      if (!printData) {
+        console.error("=== fetchPrintDetail PRINT DATA MISSING ===", { printResponse });
+        throw new Error("Print data not found for slug: " + decodedSlug);
+      }
+
       console.log("=== fetchPrintDetail PRINT FOUND ===", { id: printData?.id, slug: printData?.slug, name: printData?.name });
 
       // Fetch products for this print
@@ -56,6 +56,7 @@ export function useRealtimePrintDetail(slug: string) {
         .order("created_at", { ascending: false });
 
       if (productError) {
+        console.error("=== fetchPrintDetail PRODUCT ERROR ===", { productError, printId: printData.id });
         throw productError;
       }
 
@@ -103,7 +104,14 @@ export function useRealtimePrintDetail(slug: string) {
       setError(null);
       console.log("=== fetchPrintDetail SUCCESS ===", { slug, productCount: mappedProducts.length });
     } catch (err) {
-      console.error("=== fetchPrintDetail ERROR ===", err);
+      // Enhanced error logging
+      if (err instanceof Error) {
+        console.error("=== fetchPrintDetail ERROR (Error instance) ===", { name: err.name, message: err.message, stack: err.stack });
+      } else if (typeof err === "object" && err !== null) {
+        console.error("=== fetchPrintDetail ERROR (object) ===", JSON.stringify(err, null, 2));
+      } else {
+        console.error("=== fetchPrintDetail ERROR (other) ===", err);
+      }
       setError(err instanceof Error ? err : new Error("Failed to fetch print details"));
       setPrint(null);
       setProducts([]);

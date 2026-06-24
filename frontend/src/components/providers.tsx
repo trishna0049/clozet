@@ -24,8 +24,8 @@ type StoreContextValue = {
 };
 
 const StoreContext = createContext<StoreContextValue | null>(null);
-const CART_KEY = "aakaar-cart";
-const WISHLIST_KEY = "aakaar-wishlist";
+const CART_KEY = "clozet-cart";
+const WISHLIST_KEY = "clozet-wishlist";
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);

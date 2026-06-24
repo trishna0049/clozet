@@ -76,7 +76,7 @@ export function PrintDetailContent({ slug }: PrintDetailContentProps) {
         <SectionHeader
           eyebrow="One print, multiple forms"
           title={`All silhouettes in ${print.name}`}
-          description="This is the signature Aakaar experience. Stay in the print you love and compare shapes without losing the visual story."
+          description="This is the signature Clozet experience. Stay in the print you love and compare shapes without losing the visual story."
         />
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {products.map((product) => (
