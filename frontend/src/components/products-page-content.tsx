@@ -7,7 +7,6 @@ import type { Product } from "@/types/catalog";
 
 const PRODUCT_CATEGORIES = ["Tops", "Dresses", "Co-ords", "Shirts", "Kurtis"];
 const SIZES = ["XS", "S", "M", "L", "XL"];
-const SLEEVES = ["Sleeveless", "Half Sleeve", "Full Sleeve"];
 const SORT_OPTIONS = [
   { label: "Popularity", value: "popularity" },
   { label: "Price: Low → High", value: "price-asc" },
@@ -16,21 +15,13 @@ const SORT_OPTIONS = [
   { label: "Customer Rating", value: "rating" }
 ];
 
-// Common color keywords to extract from product details
-const COLOR_KEYWORDS = [
-  "red", "blue", "green", "black", "white", "navy", "cream", "cocoa", "pink", "yellow",
-  "purple", "orange", "brown", "gray", "grey", "beige", "burgundy", "olive", "teal",
-  "maroon", "gold", "silver", "rust", "sage", "charcoal", "ivory", "coral", "turquoise",
-  "khaki", "indigo", "mauve", "rose", "taupe", "fuchsia", "lime", "mint"
-];
-
-// Map categories to their singular search terms
-const CATEGORY_SEARCH_TERMS: Record<string, string> = {
-  "Tops": "top",
-  "Dresses": "dress",
-  "Co-ords": "co-ord",
-  "Shirts": "shirt",
-  "Kurtis": "kurti"
+// Product categories are inferred from silhouette text using category keywords.
+const CATEGORY_SILHOUETTE_KEYWORDS: Record<string, string[]> = {
+  "Tops": ["top", "blouse", "corset", "peplum", "halter"],
+  "Dresses": ["dress", "gown", "midi", "maxi", "mini"],
+  "Co-ords": ["co-ord", "co ord", "coord", "set"],
+  "Shirts": ["shirt"],
+  "Kurtis": ["kurti", "kurti set"]
 };
 
 const CATEGORY_ALIASES: Record<string, string> = {
@@ -56,6 +47,7 @@ const normalizeProductCategory = (value: string) => {
 interface ProductsPageContentProps {
   products: Product[];
   printNames: Record<string, string>;
+  printColorsByProductSlug: Record<string, string[]>;
   searchTerm: string;
   initialProductCategories?: string[];
 }
@@ -63,6 +55,7 @@ interface ProductsPageContentProps {
 export function ProductsPageContent({
   products,
   printNames,
+  printColorsByProductSlug,
   searchTerm,
   initialProductCategories = []
 }: ProductsPageContentProps) {
@@ -136,18 +129,23 @@ export function ProductsPageContent({
       a.toLowerCase().localeCompare(b.toLowerCase())
     );
     
-    // Extract colors from product details
-    const colors = Array.from(new Set(products.flatMap(p => {
-      const productText = (p.description || "" + p.details?.join(" ") || "").toLowerCase();
-      return COLOR_KEYWORDS.filter(color => productText.includes(color))
-        .map(color => color.charAt(0).toUpperCase() + color.slice(1));
-    }))).sort();
+    const colors = Array.from(
+      new Set(
+        products.flatMap((product) => printColorsByProductSlug[product.slug] ?? [])
+      )
+    ).sort((a, b) => a.localeCompare(b));
+
+    const sleeves = Array.from(
+      new Set(
+        products.flatMap((product) => product.sleeves ?? [])
+      )
+    ).sort((a, b) => a.localeCompare(b));
 
     return {
       printNames: allPrints,
       productCategories: PRODUCT_CATEGORIES,
       sizes: SIZES,
-      sleeves: SLEEVES,
+      sleeves,
       colors: colors,
       priceRange: {
         min: Math.min(...products.map(p => p.price), 0),
@@ -191,12 +189,12 @@ export function ProductsPageContent({
         return false;
       }
 
-      // Product category filter - based on title or silhouette matching product categories
+      // Product category filter - based on silhouette keyword matching
       if (selectedProductCategories.size > 0) {
+        const silhouetteText = (product.silhouette ?? "").toLowerCase();
         const matchesCategory = Array.from(selectedProductCategories).some(category => {
-          const searchTerm = CATEGORY_SEARCH_TERMS[category];
-          return product.title?.toLowerCase().includes(searchTerm) ||
-                 product.silhouette?.toLowerCase().includes(searchTerm);
+          const categoryKeywords = CATEGORY_SILHOUETTE_KEYWORDS[category] ?? [];
+          return categoryKeywords.some((keyword) => silhouetteText.includes(keyword));
         });
         if (!matchesCategory) {
           return false;
@@ -208,13 +206,10 @@ export function ProductsPageContent({
         return false;
       }
 
-      // Sleeve filter - based on product description or details
+      // Sleeve filter - based on product sleeves column
       if (selectedSleeves.size > 0) {
-        const productText = (product.description || "" + product.details?.join(" ") || "").toLowerCase();
-        const matchesSleeve = Array.from(selectedSleeves).some(sleeve => {
-          const sleeveSearch = sleeve.toLowerCase().replace(/\s/g, "");
-          return productText.includes(sleeveSearch);
-        });
+        const productSleeves = new Set((product.sleeves ?? []).map((sleeve) => sleeve.toLowerCase()));
+        const matchesSleeve = Array.from(selectedSleeves).some((sleeve) => productSleeves.has(sleeve.toLowerCase()));
         if (!matchesSleeve) {
           return false;
         }
@@ -222,10 +217,8 @@ export function ProductsPageContent({
 
       // Color filter - based on product description or details
       if (selectedColors.size > 0) {
-        const productText = (product.description || "" + product.details?.join(" ") || "").toLowerCase();
-        const matchesColor = Array.from(selectedColors).some(color => {
-          return productText.includes(color.toLowerCase());
-        });
+        const printColors = new Set((printColorsByProductSlug[product.slug] ?? []).map((color) => color.toLowerCase()));
+        const matchesColor = Array.from(selectedColors).some((color) => printColors.has(color.toLowerCase()));
         if (!matchesColor) {
           return false;
         }
@@ -258,7 +251,7 @@ export function ProductsPageContent({
     }
 
     return filtered;
-  }, [products, printNames, priceRange, selectedPrintCategories, selectedProductCategories, selectedSizes, selectedSleeves, selectedColors, sortBy]);
+  }, [products, printNames, printColorsByProductSlug, priceRange, selectedPrintCategories, selectedProductCategories, selectedSizes, selectedSleeves, selectedColors, sortBy]);
 
   const togglePrintCategory = (category: string) => {
     const newSet = new Set(selectedPrintCategories);

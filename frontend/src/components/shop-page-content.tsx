@@ -1,11 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState, useMemo } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { PrintCard, SectionHeader } from "@/components/catalog-ui";
+import { useMemo, useState } from "react";
+import { PrintCard } from "@/components/catalog-ui";
 import { useRealtimePrints } from "@/hooks/useRealtimePrints";
-import type { PrintWithMeta } from "@/types/catalog";
 
 // Common color keywords
 const COLOR_KEYWORDS = [
@@ -17,38 +14,52 @@ const COLOR_KEYWORDS = [
 
 interface ShopPageContentProps {
   initialCategory?: string;
+  initialStoryTags?: string[];
 }
 
-export function ShopPageContent({ initialCategory = "All" }: ShopPageContentProps) {
-  const { prints: allPrints, loading } = useRealtimePrints();
+const PRINT_STORY_TAGS = ["Abstract", "Indian", "Floral"] as const;
+
+const normalizeStoryTag = (value: string) => {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "abstract") return "Abstract";
+  if (normalized === "indian") return "Indian";
+  if (normalized === "floral") return "Floral";
+  return null;
+};
+
+export function ShopPageContent({ initialCategory = "All", initialStoryTags = [] }: ShopPageContentProps) {
+  const { prints: allPrints, loading: allPrintsLoading } = useRealtimePrints();
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const initialNormalizedStoryTags = useMemo(
+    () => Array.from(new Set(initialStoryTags.map((tag) => normalizeStoryTag(tag)).filter((tag): tag is string => Boolean(tag)))),
+    [initialStoryTags]
+  );
   const [selectedColors, setSelectedColors] = useState<Set<string>>(new Set());
-  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+  const [selectedStoryTags, setSelectedStoryTags] = useState<Set<string>>(
+    () => new Set(initialNormalizedStoryTags)
+  );
 
-  // Get filtered prints based on selected category and colors
-  const filteredPrints = useMemo(() => {
-    let filtered = selectedCategory === "All"
-      ? allPrints
-      : allPrints.filter((print) => print.category === selectedCategory);
+  const activeColors = useMemo(() => Array.from(selectedColors), [selectedColors]);
+  const activeStoryTags = useMemo(() => Array.from(selectedStoryTags), [selectedStoryTags]);
+  const {
+    prints: filteredPrints,
+    loading: filteredPrintsLoading
+  } = useRealtimePrints({
+    category: selectedCategory,
+    colors: activeColors,
+    storyTags: activeStoryTags
+  });
 
-    // Apply color filter
-    if (selectedColors.size > 0) {
-      filtered = filtered.filter((print) => {
-        const printText = (print.description || "").toLowerCase();
-        return Array.from(selectedColors).some(color =>
-          printText.includes(color.toLowerCase())
-        );
-      });
-    }
-
-    return filtered;
-  }, [allPrints, selectedCategory, selectedColors]);
+  const categoryOptions = useMemo(
+    () => ["All", ...new Set(allPrints.map((print) => print.category))],
+    [allPrints]
+  );
 
   // Extract available colors from all prints
   const availableColors = useMemo(() => {
     const colors = new Set<string>();
-    allPrints.forEach(print => {
-      const printText = (print.description || "").toLowerCase();
+    allPrints.forEach((print) => {
+      const printText = `${print.name} ${print.description ?? ""}`.toLowerCase();
       COLOR_KEYWORDS.forEach(color => {
         if (printText.includes(color)) {
           colors.add(color.charAt(0).toUpperCase() + color.slice(1));
@@ -56,12 +67,6 @@ export function ShopPageContent({ initialCategory = "All" }: ShopPageContentProp
       });
     });
     return Array.from(colors).sort();
-  }, [allPrints]);
-
-  // Update category options when prints change
-  useEffect(() => {
-    const categories = ["All", ...new Set(allPrints.map((print) => print.category))];
-    setCategoryOptions(categories);
   }, [allPrints]);
 
   const toggleColor = (color: string) => {
@@ -74,79 +79,115 @@ export function ShopPageContent({ initialCategory = "All" }: ShopPageContentProp
     setSelectedColors(newSet);
   };
 
-  const clearFilters = () => {
-    setSelectedColors(new Set());
+  const buildShopUrl = (category: string, storyTag?: string) => {
+    const params = new URLSearchParams();
+    if (category !== "All") {
+      params.set("category", category);
+    }
+    if (storyTag) {
+      params.set("story", storyTag);
+    }
+    const queryString = params.toString();
+    return queryString ? `/shop?${queryString}` : "/shop";
   };
 
-  if (loading) {
+  const handleStoryTagSelect = (tag: string) => {
+    setSelectedStoryTags(new Set([tag]));
+    const url = buildShopUrl(selectedCategory, tag);
+    window.history.pushState({}, "", url);
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+    const activeStoryTag = Array.from(selectedStoryTags)[0];
+    const url = buildShopUrl(category, activeStoryTag);
+    window.history.pushState({}, "", url);
+  };
+
+  const clearFilters = () => {
+    setSelectedCategory("All");
+    setSelectedColors(new Set());
+    setSelectedStoryTags(new Set());
+    window.history.pushState({}, "", "/shop");
+  };
+
+  if (allPrintsLoading || filteredPrintsLoading) {
     return <div className="space-y-10 pb-8 animate-pulse">Loading...</div>;
   }
 
   return (
     <div className="space-y-10 pb-8">
-      <section className="rounded-[2.5rem] border border-white/70 bg-white p-8 shadow-soft">
-        <SectionHeader
-          eyebrow="Print-first shop"
-          title="Browse prints"
-          description="Every card below is a print story. Click in to see all silhouettes available in that same print."
-        />
-
-        <div className="mt-8 flex flex-wrap gap-3">
-          {categoryOptions.map((category) => {
-            const active = category === selectedCategory;
-            const href = category === "All" ? "/shop" : `/shop?category=${encodeURIComponent(category)}`;
-            return (
-              <Link
-                key={category}
-                href={href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setSelectedCategory(category);
-                  // Update URL without page reload
-                  const url = category === "All" ? "/shop" : `/shop?category=${encodeURIComponent(category)}`;
-                  window.history.pushState({}, "", url);
-                }}
-                className={`rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em] transition ${
-                  active ? "bg-cocoa text-cream" : "bg-cream text-cocoa"
-                }`}
-              >
-                {category}
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Color Filter */}
-        {availableColors.length > 0 && (
-          <div className="mt-8">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="font-semibold text-cocoa">Filter by Colour</h4>
-              {selectedColors.size > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="text-xs text-cocoa/60 hover:text-cocoa underline"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {availableColors.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => toggleColor(color)}
-                  className={`rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em] transition ${
-                    selectedColors.has(color)
-                      ? "bg-cocoa text-cream"
-                      : "bg-cream text-cocoa hover:bg-cocoa/5"
-                  }`}
-                >
-                  {color}
-                </button>
-              ))}
+      <section className="rounded-[2.5rem] border border-white/70 bg-white p-4 shadow-soft">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-cocoa">
+          <div className="group relative">
+            <button
+              type="button"
+              className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-cocoa/75 transition hover:text-cocoa"
+            >
+              Category
+            </button>
+            <div className="absolute left-0 top-full z-30 hidden pt-2 group-hover:block group-focus-within:block">
+              <div className="w-48 rounded-xl border border-white/70 bg-white p-2 shadow-soft text-sm text-cocoa/80">
+                {categoryOptions.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => handleCategorySelect(category)}
+                    className={`block w-full rounded px-3 py-2 text-left text-xs uppercase tracking-[0.18em] transition ${
+                      selectedCategory === category
+                        ? "bg-cocoa text-cream"
+                        : "text-cocoa/70 hover:bg-cream hover:text-cocoa"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        )}
+
+          <div className="group relative">
+            <button
+              type="button"
+              className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-cocoa/75 transition hover:text-cocoa"
+            >
+              Colour
+            </button>
+            <div className="absolute left-0 top-full z-30 hidden pt-2 group-hover:block group-focus-within:block">
+              <div className="max-h-72 w-52 overflow-auto rounded-xl border border-white/70 bg-white p-2 shadow-soft text-sm text-cocoa/80">
+                {availableColors.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => toggleColor(color)}
+                    className={`block w-full rounded px-3 py-2 text-left text-xs uppercase tracking-[0.18em] transition ${
+                      selectedColors.has(color)
+                        ? "bg-cocoa text-cream"
+                        : "text-cocoa/70 hover:bg-cream hover:text-cocoa"
+                    }`}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {PRINT_STORY_TAGS.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => handleStoryTagSelect(tag)}
+              className={`rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${
+                selectedStoryTags.has(tag)
+                  ? "bg-cocoa text-cream"
+                  : "text-cocoa/75 hover:text-cocoa"
+              }`}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
       </section>
 
       {filteredPrints.length > 0 && (

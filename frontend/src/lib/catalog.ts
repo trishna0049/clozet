@@ -22,6 +22,7 @@ type ProductRow = {
   title: string;
   price: number;
   sizes: string[] | null;
+  sleeves: string[] | null;
   fabric: string | null;
   description: string | null;
   fit: string | null;
@@ -98,6 +99,7 @@ function mapProduct(row: ProductRow): Product {
     title: row.title,
     price: Number(row.price),
     sizes: row.sizes ?? [],
+    sleeves: row.sleeves ?? [],
     images: imageArray,
     fabric: row.fabric,
     description: row.description,
@@ -130,27 +132,40 @@ async function fetchPrintRows(category?: string) {
 
 async function fetchProductRows(filters?: { printId?: string; slug?: string }) {
   const supabase = createAdminClient();
-  let query = supabase
-    .from("products")
-    .select(
-      "id, print_id, slug, silhouette, title, price, sizes, fabric, description, fit, details, inventory, badge, image"
-    )
-    .order("created_at", { ascending: false });
+  const baseSelect = "id, print_id, slug, silhouette, title, price, sizes, fabric, description, fit, details, inventory, badge, image";
+  const selectWithSleeves = `${baseSelect}, sleeves`;
 
-  if (filters?.printId) {
-    query = query.eq("print_id", filters.printId);
+  const runQuery = async (selectClause: string) => {
+    let query = supabase
+      .from("products")
+      .select(selectClause)
+      .order("created_at", { ascending: false });
+
+    if (filters?.printId) {
+      query = query.eq("print_id", filters.printId);
+    }
+
+    if (filters?.slug) {
+      query = query.eq("slug", filters.slug);
+    }
+
+    return query;
+  };
+
+  const { data, error } = await runQuery(selectWithSleeves);
+  if (!error) {
+    return (data ?? []) as ProductRow[];
   }
 
-  if (filters?.slug) {
-    query = query.eq("slug", filters.slug);
+  if (error.message.includes("products.sleeves") || error.message.includes("column sleeves")) {
+    const { data: fallbackData, error: fallbackError } = await runQuery(baseSelect);
+    if (fallbackError) {
+      throw new Error(fallbackError.message);
+    }
+    return (fallbackData ?? []) as ProductRow[];
   }
 
-  const { data, error } = await query;
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return (data ?? []) as ProductRow[];
+  throw new Error(error.message);
 }
 
 export async function getCategoryOptions() {

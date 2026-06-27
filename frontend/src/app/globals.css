@@ -19,9 +19,9 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(128, 0, 32, 0.08), transparent 35%),
-    radial-gradient(circle at top right, rgba(92, 0, 21, 0.06), transparent 35%),
-    linear-gradient(180deg, #FDFAF7 0%, #FAF6F0 50%, #F7F2EA 100%);
+    radial-gradient(circle at top left, rgba(92, 58, 33, 0.08), transparent 35%),
+    radial-gradient(circle at top right, rgba(74, 47, 29, 0.06), transparent 35%),
+    linear-gradient(180deg, #F6EFE6 0%, #F2E8DC 50%, #ECE0D2 100%);
 }
 
 @layer components {

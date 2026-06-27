@@ -27,6 +27,7 @@ export type Product = {
   title: string;
   price: number;
   sizes: string[];
+  sleeves?: string[];
   images: string[];
   fabric: string | null;
   description: string | null;
