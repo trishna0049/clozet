@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState, type SyntheticEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/catalog-ui";
 import type { Product } from "@/types/catalog";
 
@@ -32,25 +33,74 @@ const CATEGORY_SEARCH_TERMS: Record<string, string> = {
   "Kurtis": "kurti"
 };
 
+const CATEGORY_ALIASES: Record<string, string> = {
+  tops: "Tops",
+  top: "Tops",
+  dresses: "Dresses",
+  dress: "Dresses",
+  dressess: "Dresses",
+  "co-ords": "Co-ords",
+  coords: "Co-ords",
+  shirts: "Shirts",
+  shirt: "Shirts",
+  kurtis: "Kurtis",
+  kurti: "Kurtis"
+};
+
+const normalizeProductCategory = (value: string) => {
+  const normalized = value.trim().toLowerCase();
+  const mapped = CATEGORY_ALIASES[normalized];
+  return mapped && PRODUCT_CATEGORIES.includes(mapped) ? mapped : null;
+};
+
 interface ProductsPageContentProps {
   products: Product[];
   printNames: Record<string, string>;
   searchTerm: string;
+  initialProductCategories?: string[];
 }
 
-export function ProductsPageContent({ products, printNames, searchTerm }: ProductsPageContentProps) {
+export function ProductsPageContent({
+  products,
+  printNames,
+  searchTerm,
+  initialProductCategories = []
+}: ProductsPageContentProps) {
   console.count("ProductsPageContent");
+
+  const searchParams = useSearchParams();
+  const categoriesFromUrl = useMemo(() => searchParams.getAll("category"), [searchParams]);
+
+  const normalizedInitialProductCategories = useMemo(
+    () => {
+      const sourceCategories = categoriesFromUrl.length > 0 ? categoriesFromUrl : initialProductCategories;
+      return Array.from(
+        new Set(
+          sourceCategories
+            .map((category) => normalizeProductCategory(category))
+            .filter((category): category is string => Boolean(category))
+        )
+      );
+    },
+    [categoriesFromUrl, initialProductCategories]
+  );
 
   // Filter states
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [selectedPrintCategories, setSelectedPrintCategories] = useState<Set<string>>(new Set());
-  const [selectedProductCategories, setSelectedProductCategories] = useState<Set<string>>(new Set());
+  const [selectedProductCategories, setSelectedProductCategories] = useState<Set<string>>(
+    () => new Set(normalizedInitialProductCategories)
+  );
   const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
   const [selectedSleeves, setSelectedSleeves] = useState<Set<string>>(new Set());
   const [selectedColors, setSelectedColors] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState("popularity");
   const [showAllPrints, setShowAllPrints] = useState(false);
   const dropdownRefs = useRef<Array<HTMLDetailsElement | null>>([]);
+
+  useEffect(() => {
+    setSelectedProductCategories(new Set(normalizedInitialProductCategories));
+  }, [normalizedInitialProductCategories]);
 
   const setDropdownRef = (index: number) => (node: HTMLDetailsElement | null) => {
     dropdownRefs.current[index] = node;
@@ -67,6 +117,17 @@ export function ProductsPageContent({ products, printNames, searchTerm }: Produc
         dropdown.open = false;
       }
     });
+  };
+
+  const handleMouseEnter = (index: number) => () => {
+    dropdownRefs.current.forEach((dropdown, i) => {
+      if (dropdown) dropdown.open = i === index;
+    });
+  };
+
+  const handleMouseLeave = (index: number) => () => {
+    const dropdown = dropdownRefs.current[index];
+    if (dropdown) dropdown.open = false;
   };
 
   // Get unique filter options
@@ -272,11 +333,11 @@ export function ProductsPageContent({ products, printNames, searchTerm }: Produc
       <div className="space-y-8">
         <div className="rounded-[1.5rem] border border-white/70 bg-white p-4 shadow-soft">
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <details className="group relative" ref={setDropdownRef(0)} onToggle={handleDropdownToggle(0)}>
+            <details className="group relative pb-2" ref={setDropdownRef(0)} onToggle={handleDropdownToggle(0)} onMouseEnter={handleMouseEnter(0)} onMouseLeave={handleMouseLeave(0)}>
               <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
                 <span>Sort by</span>
               </summary>
-              <div className="absolute left-0 top-full z-30 mt-2 w-56 rounded-xl border border-white/70 bg-white p-2 shadow-soft space-y-2 text-sm text-cocoa/72">
+              <div className="absolute left-0 top-full z-30 w-56 rounded-xl border border-white/70 bg-white p-2 shadow-soft space-y-2 text-sm text-cocoa/72">
                 {SORT_OPTIONS.map((option) => (
                   <button
                     key={option.value}
@@ -294,133 +355,154 @@ export function ProductsPageContent({ products, printNames, searchTerm }: Produc
               </div>
             </details>
 
-            <details className="group relative" ref={setDropdownRef(1)} onToggle={handleDropdownToggle(1)}>
+            <details className="group relative pb-2" ref={setDropdownRef(1)} onToggle={handleDropdownToggle(1)} onMouseEnter={handleMouseEnter(1)} onMouseLeave={handleMouseLeave(1)}>
               <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
                 <span>Price</span>
               </summary>
-              <div className="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-4 text-sm text-cocoa/72">
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <input
-                    type="number"
-                    min={filterOptions.priceRange.min}
-                    max={filterOptions.priceRange.max}
-                    value={priceRange[0]}
-                    onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
-                    className="w-full px-3 py-2 border border-cocoa/30 rounded text-sm"
-                    placeholder="Min"
-                  />
-                  <input
-                    type="number"
-                    min={filterOptions.priceRange.min}
-                    max={filterOptions.priceRange.max}
-                    value={priceRange[1]}
-                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                    className="w-full px-3 py-2 border border-cocoa/30 rounded text-sm"
-                    placeholder="Max"
-                  />
+              <div className="absolute left-0 top-full z-30 w-56 rounded-xl border border-white/70 bg-white p-4 shadow-soft space-y-3 text-sm text-cocoa/72">
+                <div className="flex justify-between text-xs text-cocoa/60">
+                  <span>₹{priceRange[0]}</span>
+                  <span>₹{priceRange[1]}</span>
                 </div>
-                <div className="space-y-2">
+                <div className="relative h-5">
+                  {/* Track background */}
+                  <div className="absolute top-1/2 -translate-y-1/2 w-full h-1 rounded-full bg-cocoa/10" />
+                  {/* Active range fill */}
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 h-1 rounded-full bg-cocoa"
+                    style={{
+                      left: `${((priceRange[0] - filterOptions.priceRange.min) / (filterOptions.priceRange.max - filterOptions.priceRange.min)) * 100}%`,
+                      right: `${100 - ((priceRange[1] - filterOptions.priceRange.min) / (filterOptions.priceRange.max - filterOptions.priceRange.min)) * 100}%`
+                    }}
+                  />
                   <input
                     type="range"
                     min={filterOptions.priceRange.min}
                     max={filterOptions.priceRange.max}
                     value={priceRange[0]}
-                    onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
-                    className="w-full"
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val < priceRange[1]) setPriceRange([val, priceRange[1]]);
+                    }}
+                    className="absolute w-full h-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cocoa [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow"
                   />
                   <input
                     type="range"
                     min={filterOptions.priceRange.min}
                     max={filterOptions.priceRange.max}
                     value={priceRange[1]}
-                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                    className="w-full"
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val > priceRange[0]) setPriceRange([priceRange[0], val]);
+                    }}
+                    className="absolute w-full h-full appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cocoa [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow"
                   />
                 </div>
               </div>
             </details>
 
-            <details className="group relative" ref={setDropdownRef(2)} onToggle={handleDropdownToggle(2)}>
+            <details className="group relative pb-2" ref={setDropdownRef(2)} onToggle={handleDropdownToggle(2)} onMouseEnter={handleMouseEnter(2)} onMouseLeave={handleMouseLeave(2)}>
               <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
                 <span>Category</span>
                 {selectedProductCategories.size > 0 && (
                   <span className="text-cocoa/60 text-xs">{selectedProductCategories.size} selected</span>
                 )}
               </summary>
-              <div className="absolute left-0 top-full z-30 mt-2 w-56 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
+              <div className="absolute left-0 top-full z-30 w-56 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                 {filterOptions.productCategories.map((category) => (
                   <label key={category} className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={selectedProductCategories.has(category)}
                       onChange={() => toggleProductCategory(category)}
-                      className="w-4 h-4 rounded border-cocoa/30"
+                      className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                     />
                     <span>{category}</span>
                   </label>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => setSelectedProductCategories(new Set())}
+                  className="w-full pt-1 text-left text-sm text-cocoa/75 underline underline-offset-2 hover:text-cocoa transition"
+                >
+                  View all
+                </button>
               </div>
             </details>
 
-            <details className="group relative" ref={setDropdownRef(3)} onToggle={handleDropdownToggle(3)}>
+            <details className="group relative pb-2" ref={setDropdownRef(3)} onToggle={handleDropdownToggle(3)} onMouseEnter={handleMouseEnter(3)} onMouseLeave={handleMouseLeave(3)}>
               <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
                 <span>Size</span>
                 {selectedSizes.size > 0 && (
                   <span className="text-cocoa/60 text-xs">{selectedSizes.size} selected</span>
                 )}
               </summary>
-              <div className="absolute left-0 top-full z-30 mt-2 w-48 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
+              <div className="absolute left-0 top-full z-30 w-48 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                 {filterOptions.sizes.map((size) => (
                   <label key={size} className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={selectedSizes.has(size)}
                       onChange={() => toggleSize(size)}
-                      className="w-4 h-4 rounded border-cocoa/30"
+                      className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                     />
                     <span>{size}</span>
                   </label>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => setSelectedSizes(new Set())}
+                  className="w-full pt-1 text-left text-sm text-cocoa/75 underline underline-offset-2 hover:text-cocoa transition"
+                >
+                  View all
+                </button>
               </div>
             </details>
 
-            <details className="group relative" ref={setDropdownRef(4)} onToggle={handleDropdownToggle(4)}>
+            <details className="group relative pb-2" ref={setDropdownRef(4)} onToggle={handleDropdownToggle(4)} onMouseEnter={handleMouseEnter(4)} onMouseLeave={handleMouseLeave(4)}>
               <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
                 <span>Sleeves</span>
                 {selectedSleeves.size > 0 && (
                   <span className="text-cocoa/60 text-xs">{selectedSleeves.size} selected</span>
                 )}
               </summary>
-              <div className="absolute left-0 top-full z-30 mt-2 w-56 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
+              <div className="absolute left-0 top-full z-30 w-56 rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                 {filterOptions.sleeves.map((sleeve) => (
                   <label key={sleeve} className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={selectedSleeves.has(sleeve)}
                       onChange={() => toggleSleeve(sleeve)}
-                      className="w-4 h-4 rounded border-cocoa/30"
+                      className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                     />
                     <span>{sleeve}</span>
                   </label>
                 ))}
+                <button
+                  type="button"
+                  onClick={() => setSelectedSleeves(new Set())}
+                  className="w-full pt-1 text-left text-sm text-cocoa/75 underline underline-offset-2 hover:text-cocoa transition"
+                >
+                  View all
+                </button>
               </div>
             </details>
 
-            <details className="group relative" ref={setDropdownRef(5)} onToggle={handleDropdownToggle(5)}>
+            <details className="group relative pb-2" ref={setDropdownRef(5)} onToggle={handleDropdownToggle(5)} onMouseEnter={handleMouseEnter(5)} onMouseLeave={handleMouseLeave(5)}>
               <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
                 <span>Print</span>
                 {selectedPrintCategories.size > 0 && (
                   <span className="text-cocoa/60 text-xs">{selectedPrintCategories.size} selected</span>
                 )}
               </summary>
-              <div className="absolute left-0 top-full z-30 mt-2 w-64 max-h-80 overflow-auto rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
+              <div className="absolute left-0 top-full z-30 w-64 max-h-80 overflow-auto rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                 {displayedPrints.map((print) => (
                   <label key={print} className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={selectedPrintCategories.has(print)}
                       onChange={() => togglePrintCategory(print)}
-                      className="w-4 h-4 rounded border-cocoa/30"
+                      className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                     />
                     <span>{print}</span>
                   </label>
@@ -447,25 +529,32 @@ export function ProductsPageContent({ products, printNames, searchTerm }: Produc
             </details>
 
             {filterOptions.colors.length > 0 && (
-              <details className="group relative" ref={setDropdownRef(6)} onToggle={handleDropdownToggle(6)}>
+              <details className="group relative pb-2" ref={setDropdownRef(6)} onToggle={handleDropdownToggle(6)} onMouseEnter={handleMouseEnter(6)} onMouseLeave={handleMouseLeave(6)}>
                 <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
                   <span>Colour</span>
                   {selectedColors.size > 0 && (
                     <span className="text-cocoa/60 text-xs">{selectedColors.size} selected</span>
                   )}
                 </summary>
-                <div className="absolute left-0 top-full z-30 mt-2 w-56 max-h-80 overflow-auto rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
+                <div className="absolute left-0 top-full z-30 w-56 max-h-80 overflow-auto rounded-xl border border-white/70 bg-white p-3 shadow-soft space-y-3 text-sm text-cocoa/72">
                   {filterOptions.colors.map((color) => (
                     <label key={color} className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedColors.has(color)}
                         onChange={() => toggleColor(color)}
-                        className="w-4 h-4 rounded border-cocoa/30"
+                        className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                       />
                       <span>{color}</span>
                     </label>
                   ))}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedColors(new Set())}
+                    className="w-full pt-1 text-left text-sm text-cocoa/75 underline underline-offset-2 hover:text-cocoa transition"
+                  >
+                    View all
+                  </button>
                 </div>
               </details>
             )}

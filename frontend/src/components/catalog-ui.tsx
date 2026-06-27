@@ -208,10 +208,6 @@ export function ProductCard({
           </p>
         ) : null}
 
-        <p className="text-sm leading-6 text-cocoa/70 line-clamp-2">
-          {product.description ?? "Description coming soon."}
-        </p>
-
         <div className="flex items-center justify-between text-sm text-cocoa">
           <span>{formatCurrency(product.price)}</span>
         </div>

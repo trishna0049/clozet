@@ -5,9 +5,14 @@ import type { Product } from "@/types/catalog";
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: { q?: string; category?: string | string[] };
 }) {
   const products = await getAllProducts();
+  const initialProductCategories = Array.isArray(searchParams.category)
+    ? searchParams.category
+    : searchParams.category
+      ? [searchParams.category]
+      : [];
 
   // Get print names for each product
   const printNames = Object.fromEntries(
@@ -28,6 +33,7 @@ export default async function ProductsPage({
         products={products}
         printNames={printNames}
         searchTerm={searchParams.q ?? ""}
+        initialProductCategories={initialProductCategories}
       />
     </div>
   );

@@ -156,10 +156,6 @@ function ProductCard(_a) {
             {product.badge}
           </p>) : null}
 
-        <p className="text-sm leading-6 text-cocoa/70 line-clamp-2">
-          {(_c = product.description) !== null && _c !== void 0 ? _c : "Description coming soon."}
-        </p>
-
         <div className="flex items-center justify-between text-sm text-cocoa">
           <span>{(0, catalog_1.formatCurrency)(product.price)}</span>
         </div>

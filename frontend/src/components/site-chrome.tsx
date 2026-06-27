@@ -10,12 +10,20 @@ import { Heart, Search, ShoppingCart, User } from "lucide-react";
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop by Print" },
-  { href: "/products", label: "Shop Products" }
+  { href: "/products", label: "All Products" }
 ];
+
+const PRODUCT_CATEGORIES = ["Tops", "Dresses", "Co-ords", "Shirts", "Kurtis"];
 
 export function SiteHeader() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const rawCategory = searchParams?.get("category")?.trim().toLowerCase() ?? "";
+  const activeCategory = rawCategory === "dressess" ? "dresses" : rawCategory;
+  const isProductsPage = pathname === "/products";
+  const allProductsActive = isProductsPage && !activeCategory;
+  const topsActive = isProductsPage && activeCategory === "tops";
+  const dressesActive = isProductsPage && activeCategory === "dresses";
   const { cartCount, wishlist } = useStore();
   const wishlistCount = wishlist.length;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -41,23 +49,22 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/70 bg-cream/90 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-8">
-        <Link href="/" className="flex flex-col leading-none">
-          <span className="font-display text-3xl tracking-[0.18em] text-cocoa">CLOZET</span>
-          <span className="text-[10px] uppercase tracking-[0.4em] text-cocoa/60">
-            Any shape and form
-          </span>
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 md:px-8">
+        <Link href="/" className="flex flex-col leading-none flex-shrink-0">
+          <span className="font-display text-2xl tracking-[0.18em] text-cocoa">CLOZET</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-4 md:flex">
           {navItems.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const active = item.href === "/products"
+              ? allProductsActive
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
             const isShopLink = item.href === "/shop" || item.href === "/products";
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-sm uppercase tracking-[0.28em] transition ${
+                className={`text-[11px] uppercase tracking-[0.22em] transition ${
                   active ? "text-cocoa" : "text-cocoa/60 hover:text-cocoa"
                 } ${isShopLink ? "font-semibold" : "font-medium"}`}
               >
@@ -65,16 +72,56 @@ export function SiteHeader() {
               </Link>
             );
           })}
+
+          <Link
+            href="/products?category=Tops"
+            className={`text-[11px] font-semibold uppercase tracking-[0.22em] transition ${
+              topsActive ? "text-cocoa" : "text-cocoa/60 hover:text-cocoa"
+            }`}
+          >
+            Tops
+          </Link>
+
+          <Link
+            href="/products?category=Dresses"
+            className={`text-[11px] font-semibold uppercase tracking-[0.22em] transition ${
+              dressesActive ? "text-cocoa" : "text-cocoa/60 hover:text-cocoa"
+            }`}
+          >
+            Dresses
+          </Link>
+
+          <div className="relative group">
+            <button
+              type="button"
+              className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cocoa/60 hover:text-cocoa transition flex items-center gap-1"
+            >
+              Category
+            </button>
+            <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
+              <div className="w-44 rounded-xl border border-white/70 bg-white p-2 shadow-soft space-y-1 text-sm text-cocoa/72">
+                {PRODUCT_CATEGORIES.map((cat) => (
+                  <Link
+                    key={cat}
+                    href={`/products?category=${encodeURIComponent(cat)}`}
+                    className="block rounded px-3 py-2 uppercase tracking-[0.2em] text-xs text-cocoa/70 hover:bg-cream hover:text-cocoa transition"
+                  >
+                    {cat}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
         </nav>
 
-        <form action="/products" method="get" className="flex min-w-0 items-center gap-2 rounded-full border border-cocoa/15 bg-white px-3 py-2 shadow-soft md:min-w-[280px]">
-          <Search size={16} className="text-cocoa/60" />
+        <form action="/products" method="get" className="flex min-w-0 items-center gap-2 rounded-full border border-cocoa/15 bg-white px-3 py-2 shadow-soft md:w-[220px]">
+          <Search size={14} className="text-cocoa/60 flex-shrink-0" />
           <input
             type="search"
             name="q"
             defaultValue={searchParams?.get("q") ?? ""}
             placeholder="Search products"
-            className="min-w-0 w-full bg-transparent text-sm text-cocoa placeholder:text-cocoa/50 focus:outline-none"
+            className="min-w-0 w-full bg-transparent text-xs text-cocoa placeholder:text-cocoa/50 focus:outline-none"
           />
         </form>
 

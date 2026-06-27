@@ -5,20 +5,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        sand: "#efe1d3",
-        cream: "#f8f1e8",
-        cocoa: "#5e4636",
-        terracotta: "#c97958",
-        leaf: "#7d8f6d",
-        blush: "#efcbb7",
-        ink: "#2e2520"
+        sand: "#F5EFE6",
+        cream: "#FDFAF7",
+        cocoa: "#800020",
+        terracotta: "#A0263A",
+        leaf: "#5C0015",
+        blush: "#F5B8C4",
+        ink: "#3B000E"
       },
       fontFamily: {
         display: ["var(--font-display)"],
         sans: ["var(--font-sans)"]
       },
       boxShadow: {
-        soft: "0 24px 60px rgba(94, 70, 54, 0.12)"
+        soft: "0 24px 60px rgba(128, 0, 32, 0.12)"
       },
       keyframes: {
         marquee: {
@@ -31,7 +31,7 @@ const config: Config = {
       },
       backgroundImage: {
         "print-grid":
-          "radial-gradient(circle at top left, rgba(201,121,88,0.18), transparent 26%), radial-gradient(circle at bottom right, rgba(125,143,109,0.12), transparent 24%), linear-gradient(135deg, rgba(255,255,255,0.82), rgba(248,241,232,0.92))"
+          "radial-gradient(circle at top left, rgba(128,0,32,0.10), transparent 26%), radial-gradient(circle at bottom right, rgba(92,0,21,0.08), transparent 24%), linear-gradient(135deg, rgba(255,255,255,0.90), rgba(253,250,247,0.95))"
       }
     }
   },
