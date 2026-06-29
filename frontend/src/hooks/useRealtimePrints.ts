@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { PrintWithMeta } from "@/types/catalog";
 
 type RealtimePrintFilters = {
-  category?: string;
+  category?: string | string[];
   colors?: string[];
   storyTags?: string[];
 };
@@ -47,9 +47,16 @@ export function useRealtimePrints(filtersOrCategory?: string | RealtimePrintFilt
       ? { category: filtersOrCategory }
       : filtersOrCategory ?? {};
 
-  const selectedCategory = filters.category;
+  const selectedCategories = Array.from(
+    new Set(
+      (Array.isArray(filters.category) ? filters.category : (filters.category ?? "").split(","))
+        .map((value) => value.trim())
+        .filter((value) => Boolean(value) && value !== "All")
+    )
+  );
   const selectedColors = normalizeFilterValues(filters.colors);
   const selectedStoryTags = normalizeFilterValues(filters.storyTags);
+  const selectedCategoriesKey = selectedCategories.join("|");
   const selectedColorsKey = selectedColors.join("|");
   const selectedStoryTagsKey = selectedStoryTags.join("|");
 
@@ -61,8 +68,10 @@ export function useRealtimePrints(filtersOrCategory?: string | RealtimePrintFilt
 
       if (selectedColors.length > 0) {
         let colorQuery = supabase.from("prints").select("id");
-        if (selectedCategory && selectedCategory !== "All") {
-          colorQuery = colorQuery.eq("category", selectedCategory);
+        if (selectedCategories.length === 1) {
+          colorQuery = colorQuery.eq("category", selectedCategories[0]);
+        } else if (selectedCategories.length > 1) {
+          colorQuery = colorQuery.in("category", selectedCategories);
         }
 
         const colorClause = buildTextMatchOrClause(selectedColors);
@@ -83,8 +92,10 @@ export function useRealtimePrints(filtersOrCategory?: string | RealtimePrintFilt
 
       if (selectedStoryTags.length > 0) {
         let storyQuery = supabase.from("prints").select("id");
-        if (selectedCategory && selectedCategory !== "All") {
-          storyQuery = storyQuery.eq("category", selectedCategory);
+        if (selectedCategories.length === 1) {
+          storyQuery = storyQuery.eq("category", selectedCategories[0]);
+        } else if (selectedCategories.length > 1) {
+          storyQuery = storyQuery.in("category", selectedCategories);
         }
 
         const storyCategories = Array.from(
@@ -120,8 +131,10 @@ export function useRealtimePrints(filtersOrCategory?: string | RealtimePrintFilt
         .order("featured", { ascending: false })
         .order("name", { ascending: true });
 
-      if (selectedCategory && selectedCategory !== "All") {
-        query = query.eq("category", selectedCategory);
+      if (selectedCategories.length === 1) {
+        query = query.eq("category", selectedCategories[0]);
+      } else if (selectedCategories.length > 1) {
+        query = query.in("category", selectedCategories);
       }
 
       if (filteredIds) {
@@ -167,7 +180,6 @@ export function useRealtimePrints(filtersOrCategory?: string | RealtimePrintFilt
           bestseller: row.bestseller ?? false,
           featured: row.featured ?? false,
           image: row.image,
-          bannerImage: null,
           silhouettesCount: relatedProducts.length,
           startingPrice
         };
@@ -181,7 +193,7 @@ export function useRealtimePrints(filtersOrCategory?: string | RealtimePrintFilt
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory, selectedColorsKey, selectedStoryTagsKey]);
+  }, [selectedCategoriesKey, selectedColorsKey, selectedStoryTagsKey]);
 
   useEffect(() => {
     // Initial fetch

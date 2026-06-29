@@ -84,7 +84,6 @@ aakaar/
 - `name`
 - `category`
 - `image`
-- `bannerImage`
 - `description`
 - `mood`
 - `palette`
@@ -234,7 +233,6 @@ You can change:
 - `name`
 - `category`
 - `image`
-- `bannerImage`
 - `description`
 - `palette`
 - `dropNote`

@@ -109,6 +109,12 @@ export function SiteHeader() {
                     {cat}
                   </Link>
                 ))}
+                <Link
+                  href="/products"
+                  className="block rounded px-3 py-2 text-xs uppercase tracking-[0.2em] text-cocoa/70 underline underline-offset-2 transition hover:bg-cream hover:text-cocoa"
+                >
+                  View all
+                </Link>
               </div>
             </div>
           </div>
@@ -222,7 +228,7 @@ export function SiteFooter() {
                 clozet2025@gmail.com
               </a>
             </p>
-            <p>Shipping in Bhubaneswar</p>
+            <p>Shipping all over India</p>
             <p>Where every print tells a story</p>
           </div>
         </div>

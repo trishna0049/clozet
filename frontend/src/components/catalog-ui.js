@@ -97,10 +97,16 @@ function PrintCard(_a) {
     var _b = (0, providers_1.useStore)(), toggleWishlist = _b.toggleWishlist, wishlist = _b.wishlist;
     var printId = "print:".concat(item.slug);
     var wishlisted = wishlist.includes(printId);
-    return (<article className="overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-soft transition duration-300 hover:-translate-y-1 flex flex-col h-full">
-      <link_1.default href={"/prints/".concat(encodeURIComponent(item.slug))} className="group block">
-        <MediaPanel src={item.image} alt={item.name} label={"".concat(item.name, " print artwork")} className="aspect-[4/5]"/>
-      </link_1.default>
+    return (<article className="group overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-soft transition duration-300 hover:-translate-y-1 flex flex-col h-full">
+      <div className="relative">
+        <link_1.default href={"/prints/".concat(encodeURIComponent(item.slug))} className="block">
+          <MediaPanel src={item.image} alt={item.name} label={"".concat(item.name, " print artwork")} className="aspect-[4/5]"/>
+        </link_1.default>
+
+        <link_1.default href={"/prints/".concat(encodeURIComponent(item.slug))} className="absolute bottom-0 left-0 right-0 inline-flex w-full translate-y-1 items-center justify-center border-t border-white/70 bg-white/45 px-4 py-3 text-sm font-medium tracking-[0.12em] text-cocoa opacity-0 backdrop-blur-sm transition duration-300 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto">
+          See Products
+        </link_1.default>
+      </div>
 
       <div className="flex-1 flex flex-col px-5 py-4 gap-3">
         <div className="flex items-start justify-between gap-2">
@@ -108,7 +114,6 @@ function PrintCard(_a) {
             <div>
               <p className="text-xs uppercase tracking-[0.28em] text-cocoa/50 line-clamp-1">{item.category}</p>
               <h3 className="font-display text-2xl text-cocoa leading-tight line-clamp-1">{item.name}</h3>
-              <p className="mt-1 text-xs text-cocoa/60 line-clamp-2">{item.description}</p>
             </div>
           </link_1.default>
           <button type="button" onClick={function () { return toggleWishlist(printId); }} className="rounded-full p-2 hover:bg-cream transition flex-shrink-0" aria-label={wishlisted ? "Remove print from wishlist" : "Add print to wishlist"}>

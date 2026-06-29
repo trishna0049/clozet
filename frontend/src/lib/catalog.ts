@@ -22,7 +22,8 @@ type ProductRow = {
   title: string;
   price: number;
   sizes: string[] | null;
-  sleeves: string[] | null;
+  sleeves?: string[] | string | null;
+  sleeve?: string[] | string | null;
   fabric: string | null;
   description: string | null;
   fit: string | null;
@@ -30,6 +31,21 @@ type ProductRow = {
   inventory: number | null;
   badge: string | null;
   image?: string | null;
+};
+
+const normalizeSleeves = (value: ProductRow["sleeves"] | ProductRow["sleeve"]) => {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean).map((item) => String(item));
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
 };
 
 export const brand: Brand = {
@@ -83,13 +99,13 @@ function mapPrint(row: PrintRow): Print {
     limitedLeft: row.limited_left ?? 0,
     bestseller: row.bestseller ?? false,
     featured: row.featured ?? false,
-    image: row.image,
-    bannerImage: null
+    image: row.image
   };
 }
 
 function mapProduct(row: ProductRow): Product {
   const imageArray = row.image ? [row.image] : [];
+  const normalizedSleeves = normalizeSleeves(row.sleeves ?? row.sleeve ?? null);
 
   return {
     id: row.id,
@@ -99,7 +115,7 @@ function mapProduct(row: ProductRow): Product {
     title: row.title,
     price: Number(row.price),
     sizes: row.sizes ?? [],
-    sleeves: row.sleeves ?? [],
+    sleeves: normalizedSleeves,
     images: imageArray,
     fabric: row.fabric,
     description: row.description,
@@ -134,6 +150,7 @@ async function fetchProductRows(filters?: { printId?: string; slug?: string }) {
   const supabase = createAdminClient();
   const baseSelect = "id, print_id, slug, silhouette, title, price, sizes, fabric, description, fit, details, inventory, badge, image";
   const selectWithSleeves = `${baseSelect}, sleeves`;
+  const selectWithSleeve = `${baseSelect}, sleeve`;
 
   const runQuery = async (selectClause: string) => {
     let query = supabase
@@ -158,11 +175,20 @@ async function fetchProductRows(filters?: { printId?: string; slug?: string }) {
   }
 
   if (error.message.includes("products.sleeves") || error.message.includes("column sleeves")) {
-    const { data: fallbackData, error: fallbackError } = await runQuery(baseSelect);
-    if (fallbackError) {
-      throw new Error(fallbackError.message);
+    const { data: sleeveData, error: sleeveError } = await runQuery(selectWithSleeve);
+    if (!sleeveError) {
+      return (sleeveData ?? []) as ProductRow[];
     }
-    return (fallbackData ?? []) as ProductRow[];
+
+    if (sleeveError.message.includes("products.sleeve") || sleeveError.message.includes("column sleeve")) {
+      const { data: fallbackData, error: fallbackError } = await runQuery(baseSelect);
+      if (fallbackError) {
+        throw new Error(fallbackError.message);
+      }
+      return (fallbackData ?? []) as ProductRow[];
+    }
+
+    throw new Error(sleeveError.message);
   }
 
   throw new Error(error.message);

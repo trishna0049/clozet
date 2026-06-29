@@ -22,9 +22,10 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
 
   return (
     <div className="space-y-10 pb-8">
-      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="grid gap-4">
-          <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden rounded-[2rem] border border-white/70 bg-gradient-to-br from-sand via-cream to-white shadow-soft">
+      <section className="overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-soft">
+        <div className="grid gap-0 lg:min-h-[calc(100vh-7rem)] lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
+          <div className="grid min-h-0 gap-0 lg:grid-rows-[minmax(0,1fr)_auto]">
+          <div className="relative aspect-[4/5] min-h-[320px] overflow-hidden lg:aspect-auto lg:h-full">
             {product.images[0] ? (
               <Image
                 src={product.images[0]}
@@ -32,7 +33,7 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 unoptimized
-                className="object-cover"
+                className="object-cover object-center"
               />
             ) : (
               <div className="p-8 text-center">
@@ -44,21 +45,31 @@ export function ProductDetailContent({ slug }: ProductDetailContentProps) {
               </div>
             )}
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {(product.images.length ? product.images.slice(1) : ["placeholder-1", "placeholder-2"]).map((image) => (
-              <div
-                key={image}
-                className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-[1.8rem] border border-white/70 bg-gradient-to-br from-white via-cream to-sand shadow-soft"
-              >
-                <div className="p-6 text-center text-sm leading-6 text-cocoa/60">
-                  Additional Cloudinary product images will appear here.
+          {product.images.length > 1 ? (
+            <div className="grid gap-0 sm:grid-cols-2">
+              {product.images.slice(1, 3).map((image) => (
+                <div
+                  key={image}
+                  className="relative aspect-[4/5] overflow-hidden"
+                >
+                  <Image
+                    src={image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    unoptimized
+                    className="object-cover"
+                  />
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
-        <ProductPurchasePanel product={product} printName={print.name} />
+        <div className="border-t border-cocoa/10 p-4 md:p-5 lg:border-l lg:border-t-0 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+          <ProductPurchasePanel product={product} printName={print.name} />
+        </div>
+        </div>
       </section>
 
       {siblingProducts.length > 0 && (

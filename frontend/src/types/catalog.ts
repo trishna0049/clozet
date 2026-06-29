@@ -16,7 +16,6 @@ export type Print = {
   bestseller: boolean;
   featured: boolean;
   image?: string | null;
-  bannerImage?: string | null;
 };
 
 export type Product = {

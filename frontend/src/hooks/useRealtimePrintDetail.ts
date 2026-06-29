@@ -72,7 +72,6 @@ export function useRealtimePrintDetail(slug: string) {
         bestseller: printData.bestseller ?? false,
         featured: printData.featured ?? false,
         image: printData.image,
-        bannerImage: null,
         silhouettesCount: (productRows || []).length,
         startingPrice: 0
       };

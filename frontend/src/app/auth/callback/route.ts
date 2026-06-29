@@ -19,6 +19,18 @@ export async function GET(request: NextRequest) {
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!exchangeError) {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        await supabase.from("profiles").upsert({
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name || user.user_metadata?.name || ""
+        });
+      }
+
       return NextResponse.redirect(new URL("/account", request.url));
     }
 

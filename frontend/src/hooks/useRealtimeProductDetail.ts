@@ -70,8 +70,7 @@ export function useRealtimeProductDetail(slug: string) {
         limitedLeft: printData.limited_left ?? 0,
         bestseller: printData.bestseller ?? false,
         featured: printData.featured ?? false,
-        image: printData.image,
-        bannerImage: null
+        image: printData.image
       } : null;
 
       // Fetch sibling products (same print)

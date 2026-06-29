@@ -7,7 +7,6 @@ const printSchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true, index: true },
     category: { type: String, required: true, index: true },
     image: { type: String, required: true },
-    bannerImage: { type: String, required: true },
     description: { type: String, required: true },
     mood: { type: String, required: true },
     palette: [{ type: String }],

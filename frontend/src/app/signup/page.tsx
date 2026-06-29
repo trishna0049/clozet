@@ -110,6 +110,28 @@ export default function SignupPage() {
       if (signupError) {
         setError(signupError.message);
       } else if (data.user) {
+        const address = formData.includeAddress
+          ? {
+              street: formData.street,
+              city: formData.city,
+              state: formData.state,
+              zip_code: formData.zipCode,
+              country: formData.country
+            }
+          : null;
+
+        const { error: profileError } = await supabase.from("profiles").upsert({
+          id: data.user.id,
+          email: data.user.email,
+          full_name: formData.fullName,
+          address
+        });
+
+        if (profileError) {
+          setError(profileError.message);
+          return;
+        }
+
         router.push("/login?message=Check your email for verification");
       }
     } catch (err) {

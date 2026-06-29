@@ -7,6 +7,7 @@ import type { Product } from "@/types/catalog";
 
 const PRODUCT_CATEGORIES = ["Tops", "Dresses", "Co-ords", "Shirts", "Kurtis"];
 const SIZES = ["XS", "S", "M", "L", "XL"];
+const SLEEVE_OPTIONS = ["sleeveless", "full sleeve", "half sleeve"];
 const SORT_OPTIONS = [
   { label: "Popularity", value: "popularity" },
   { label: "Price: Low → High", value: "price-asc" },
@@ -19,7 +20,7 @@ const SORT_OPTIONS = [
 const CATEGORY_SILHOUETTE_KEYWORDS: Record<string, string[]> = {
   "Tops": ["top", "blouse", "corset", "peplum", "halter"],
   "Dresses": ["dress", "gown", "midi", "maxi", "mini"],
-  "Co-ords": ["co-ord", "co ord", "coord", "set"],
+  "Co-ords": ["co-ord", "co ord", "co-ords", "co ords"],
   "Shirts": ["shirt"],
   "Kurtis": ["kurti", "kurti set"]
 };
@@ -42,6 +43,28 @@ const normalizeProductCategory = (value: string) => {
   const normalized = value.trim().toLowerCase();
   const mapped = CATEGORY_ALIASES[normalized];
   return mapped && PRODUCT_CATEGORIES.includes(mapped) ? mapped : null;
+};
+
+const normalizeSleeveValue = (value: string) => {
+  const normalized = value.trim().toLowerCase();
+
+  if (["sleeveless", "sleeve-less", "no sleeve", "no sleeves"].includes(normalized)) {
+    return "sleeveless";
+  }
+
+  if (
+    ["full sleeve", "full sleeves", "long sleeve", "long sleeves"].includes(normalized)
+  ) {
+    return "full sleeve";
+  }
+
+  if (
+    ["half sleeve", "half sleeves", "short sleeve", "short sleeves"].includes(normalized)
+  ) {
+    return "half sleeve";
+  }
+
+  return normalized;
 };
 
 interface ProductsPageContentProps {
@@ -135,17 +158,11 @@ export function ProductsPageContent({
       )
     ).sort((a, b) => a.localeCompare(b));
 
-    const sleeves = Array.from(
-      new Set(
-        products.flatMap((product) => product.sleeves ?? [])
-      )
-    ).sort((a, b) => a.localeCompare(b));
-
     return {
       printNames: allPrints,
       productCategories: PRODUCT_CATEGORIES,
       sizes: SIZES,
-      sleeves,
+      sleeves: SLEEVE_OPTIONS,
       colors: colors,
       priceRange: {
         min: Math.min(...products.map(p => p.price), 0),
@@ -153,6 +170,65 @@ export function ProductsPageContent({
       }
     };
   }, [products, printNames]);
+
+  const filterOptionCounts = useMemo(() => {
+    const categoryCounts = Object.fromEntries(
+      PRODUCT_CATEGORIES.map((category) => {
+        const categoryKeywords = CATEGORY_SILHOUETTE_KEYWORDS[category] ?? [];
+        const count = products.filter((product) => {
+          const silhouetteText = (product.silhouette ?? "").toLowerCase();
+          return categoryKeywords.some((keyword) => silhouetteText.includes(keyword));
+        }).length;
+        return [category, count];
+      })
+    ) as Record<string, number>;
+
+    const sizeCounts = Object.fromEntries(
+      SIZES.map((size) => [
+        size,
+        products.filter((product) => (product.sizes ?? []).includes(size)).length
+      ])
+    ) as Record<string, number>;
+
+    const sleeveCounts = Object.fromEntries(
+      SLEEVE_OPTIONS.map((sleeveOption) => {
+        const count = products.filter((product) => {
+          const normalizedSleeves = new Set(
+            (product.sleeves ?? []).map((sleeve) => normalizeSleeveValue(sleeve))
+          );
+          return normalizedSleeves.has(normalizeSleeveValue(sleeveOption));
+        }).length;
+        return [sleeveOption, count];
+      })
+    ) as Record<string, number>;
+
+    const printCounts = Object.fromEntries(
+      filterOptions.printNames.map((printName) => [
+        printName,
+        products.filter((product) => (printNames[product.slug] || "Unknown") === printName).length
+      ])
+    ) as Record<string, number>;
+
+    const colorCounts = Object.fromEntries(
+      filterOptions.colors.map((color) => {
+        const count = products.filter((product) => {
+          const productColors = new Set(
+            (printColorsByProductSlug[product.slug] ?? []).map((item) => item.toLowerCase())
+          );
+          return productColors.has(color.toLowerCase());
+        }).length;
+        return [color, count];
+      })
+    ) as Record<string, number>;
+
+    return {
+      categoryCounts,
+      sizeCounts,
+      sleeveCounts,
+      printCounts,
+      colorCounts
+    };
+  }, [products, printNames, printColorsByProductSlug, filterOptions.printNames, filterOptions.colors]);
 
   // Filter products
   const filteredProducts = useMemo(() => {
@@ -208,8 +284,14 @@ export function ProductsPageContent({
 
       // Sleeve filter - based on product sleeves column
       if (selectedSleeves.size > 0) {
-        const productSleeves = new Set((product.sleeves ?? []).map((sleeve) => sleeve.toLowerCase()));
-        const matchesSleeve = Array.from(selectedSleeves).some((sleeve) => productSleeves.has(sleeve.toLowerCase()));
+        const productSleeves = new Set(
+          (product.sleeves ?? [])
+            .map((sleeve) => normalizeSleeveValue(sleeve))
+            .filter(Boolean)
+        );
+        const matchesSleeve = Array.from(selectedSleeves).some((sleeve) =>
+          productSleeves.has(normalizeSleeveValue(sleeve))
+        );
         if (!matchesSleeve) {
           return false;
         }
@@ -324,10 +406,10 @@ export function ProductsPageContent({
       )}
 
       <div className="space-y-8">
-        <div className="rounded-[1.5rem] border border-white/70 bg-white p-4 shadow-soft">
+        <div className="rounded-[1.5rem] border border-white/70 bg-white px-4 py-2.5 shadow-soft">
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <details className="group relative pb-2" ref={setDropdownRef(0)} onToggle={handleDropdownToggle(0)} onMouseEnter={handleMouseEnter(0)} onMouseLeave={handleMouseLeave(0)}>
-              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+            <details className="group relative" ref={setDropdownRef(0)} onToggle={handleDropdownToggle(0)} onMouseEnter={handleMouseEnter(0)} onMouseLeave={handleMouseLeave(0)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-[11px] font-medium uppercase tracking-[0.12em] text-cocoa/65 transition hover:text-cocoa">
                 <span>Sort by</span>
               </summary>
               <div className="absolute left-0 top-full z-30 w-56 rounded-xl border border-white/70 bg-white p-2 shadow-soft space-y-2 text-sm text-cocoa/72">
@@ -348,8 +430,8 @@ export function ProductsPageContent({
               </div>
             </details>
 
-            <details className="group relative pb-2" ref={setDropdownRef(1)} onToggle={handleDropdownToggle(1)} onMouseEnter={handleMouseEnter(1)} onMouseLeave={handleMouseLeave(1)}>
-              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+            <details className="group relative" ref={setDropdownRef(1)} onToggle={handleDropdownToggle(1)} onMouseEnter={handleMouseEnter(1)} onMouseLeave={handleMouseLeave(1)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-[11px] font-medium uppercase tracking-[0.12em] text-cocoa/65 transition hover:text-cocoa">
                 <span>Price</span>
               </summary>
               <div className="absolute left-0 top-full z-30 w-56 rounded-xl border border-white/70 bg-white p-4 shadow-soft space-y-3 text-sm text-cocoa/72">
@@ -394,8 +476,8 @@ export function ProductsPageContent({
               </div>
             </details>
 
-            <details className="group relative pb-2" ref={setDropdownRef(2)} onToggle={handleDropdownToggle(2)} onMouseEnter={handleMouseEnter(2)} onMouseLeave={handleMouseLeave(2)}>
-              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+            <details className="group relative" ref={setDropdownRef(2)} onToggle={handleDropdownToggle(2)} onMouseEnter={handleMouseEnter(2)} onMouseLeave={handleMouseLeave(2)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-[11px] font-medium uppercase tracking-[0.12em] text-cocoa/65 transition hover:text-cocoa">
                 <span>Category</span>
                 {selectedProductCategories.size > 0 && (
                   <span className="text-cocoa/60 text-xs">{selectedProductCategories.size} selected</span>
@@ -410,7 +492,7 @@ export function ProductsPageContent({
                       onChange={() => toggleProductCategory(category)}
                       className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                     />
-                    <span>{category}</span>
+                    <span>{category} ({filterOptionCounts.categoryCounts[category] ?? 0})</span>
                   </label>
                 ))}
                 <button
@@ -423,8 +505,8 @@ export function ProductsPageContent({
               </div>
             </details>
 
-            <details className="group relative pb-2" ref={setDropdownRef(3)} onToggle={handleDropdownToggle(3)} onMouseEnter={handleMouseEnter(3)} onMouseLeave={handleMouseLeave(3)}>
-              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+            <details className="group relative" ref={setDropdownRef(3)} onToggle={handleDropdownToggle(3)} onMouseEnter={handleMouseEnter(3)} onMouseLeave={handleMouseLeave(3)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-[11px] font-medium uppercase tracking-[0.12em] text-cocoa/65 transition hover:text-cocoa">
                 <span>Size</span>
                 {selectedSizes.size > 0 && (
                   <span className="text-cocoa/60 text-xs">{selectedSizes.size} selected</span>
@@ -439,7 +521,7 @@ export function ProductsPageContent({
                       onChange={() => toggleSize(size)}
                       className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                     />
-                    <span>{size}</span>
+                    <span>{size} ({filterOptionCounts.sizeCounts[size] ?? 0})</span>
                   </label>
                 ))}
                 <button
@@ -452,9 +534,9 @@ export function ProductsPageContent({
               </div>
             </details>
 
-            <details className="group relative pb-2" ref={setDropdownRef(4)} onToggle={handleDropdownToggle(4)} onMouseEnter={handleMouseEnter(4)} onMouseLeave={handleMouseLeave(4)}>
-              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
-                <span>Sleeves</span>
+            <details className="group relative" ref={setDropdownRef(4)} onToggle={handleDropdownToggle(4)} onMouseEnter={handleMouseEnter(4)} onMouseLeave={handleMouseLeave(4)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-[11px] font-medium uppercase tracking-[0.12em] text-cocoa/65 transition hover:text-cocoa">
+                <span>Sleeve</span>
                 {selectedSleeves.size > 0 && (
                   <span className="text-cocoa/60 text-xs">{selectedSleeves.size} selected</span>
                 )}
@@ -468,7 +550,7 @@ export function ProductsPageContent({
                       onChange={() => toggleSleeve(sleeve)}
                       className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                     />
-                    <span>{sleeve}</span>
+                    <span>{sleeve} ({filterOptionCounts.sleeveCounts[sleeve] ?? 0})</span>
                   </label>
                 ))}
                 <button
@@ -481,8 +563,8 @@ export function ProductsPageContent({
               </div>
             </details>
 
-            <details className="group relative pb-2" ref={setDropdownRef(5)} onToggle={handleDropdownToggle(5)} onMouseEnter={handleMouseEnter(5)} onMouseLeave={handleMouseLeave(5)}>
-              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+            <details className="group relative" ref={setDropdownRef(5)} onToggle={handleDropdownToggle(5)} onMouseEnter={handleMouseEnter(5)} onMouseLeave={handleMouseLeave(5)}>
+              <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-[11px] font-medium uppercase tracking-[0.12em] text-cocoa/65 transition hover:text-cocoa">
                 <span>Print</span>
                 {selectedPrintCategories.size > 0 && (
                   <span className="text-cocoa/60 text-xs">{selectedPrintCategories.size} selected</span>
@@ -497,7 +579,7 @@ export function ProductsPageContent({
                       onChange={() => togglePrintCategory(print)}
                       className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                     />
-                    <span>{print}</span>
+                    <span>{print} ({filterOptionCounts.printCounts[print] ?? 0})</span>
                   </label>
                 ))}
                 {!showAllPrints && filterOptions.printNames.length > 5 && (
@@ -522,8 +604,8 @@ export function ProductsPageContent({
             </details>
 
             {filterOptions.colors.length > 0 && (
-              <details className="group relative pb-2" ref={setDropdownRef(6)} onToggle={handleDropdownToggle(6)} onMouseEnter={handleMouseEnter(6)} onMouseLeave={handleMouseLeave(6)}>
-                <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-sm font-medium text-cocoa">
+              <details className="group relative" ref={setDropdownRef(6)} onToggle={handleDropdownToggle(6)} onMouseEnter={handleMouseEnter(6)} onMouseLeave={handleMouseLeave(6)}>
+                <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-[11px] font-medium uppercase tracking-[0.12em] text-cocoa/65 transition hover:text-cocoa">
                   <span>Colour</span>
                   {selectedColors.size > 0 && (
                     <span className="text-cocoa/60 text-xs">{selectedColors.size} selected</span>
@@ -538,7 +620,7 @@ export function ProductsPageContent({
                         onChange={() => toggleColor(color)}
                         className="w-4 h-4 rounded border-cocoa/30 accent-cocoa"
                       />
-                      <span>{color}</span>
+                      <span>{color} ({filterOptionCounts.colorCounts[color] ?? 0})</span>
                     </label>
                   ))}
                   <button

@@ -25,8 +25,9 @@ const parseColorValue = (value: unknown): string[] => {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string | string[] };
+  searchParams: Promise<{ q?: string; category?: string | string[] }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const products = await getAllProducts();
   const supabase = createAdminClient();
 
@@ -55,10 +56,10 @@ export default async function ProductsPage({
     })
   );
 
-  const initialProductCategories = Array.isArray(searchParams.category)
-    ? searchParams.category
-    : searchParams.category
-      ? [searchParams.category]
+  const initialProductCategories = Array.isArray(resolvedSearchParams.category)
+    ? resolvedSearchParams.category
+    : resolvedSearchParams.category
+      ? [resolvedSearchParams.category]
       : [];
 
   // Build print names and print-colour map for each product.
@@ -79,7 +80,7 @@ export default async function ProductsPage({
         products={products}
         printNames={printNames}
         printColorsByProductSlug={printColorsByProductSlug}
-        searchTerm={searchParams.q ?? ""}
+        searchTerm={resolvedSearchParams.q ?? ""}
         initialProductCategories={initialProductCategories}
       />
     </div>
