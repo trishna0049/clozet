@@ -7,11 +7,6 @@ export default async function ShopPage({
 }) {
   const params = await searchParams;
   const selectedCategory = params?.category ?? "All";
-  const selectedStories = Array.isArray(params?.story)
-    ? params.story
-    : params?.story
-      ? [params.story]
-      : [];
 
-  return <ShopPageContent initialCategory={selectedCategory} initialStoryTags={selectedStories} />;
+  return <ShopPageContent initialCategory={selectedCategory} />;
 }

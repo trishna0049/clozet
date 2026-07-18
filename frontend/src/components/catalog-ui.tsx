@@ -53,9 +53,9 @@ export function SectionHeader({
   actionHref,
   compact
 }: {
-  eyebrow?: string;
+  eyebrow: string;
   title: string;
-  description?: string;
+  description: string;
   actionLabel?: string;
   actionHref?: string;
   compact?: boolean;
@@ -79,9 +79,9 @@ export function SectionHeader({
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
       <div className="max-w-2xl">
-        {eyebrow ? <p className={eyebrowClass}>{eyebrow}</p> : null}
+        <p className={eyebrowClass}>{eyebrow}</p>
         <h2 className={titleClass}>{title}</h2>
-        {description ? <p className={descClass}>{description}</p> : null}
+        <p className={descClass}>{description}</p>
       </div>
 
       {actionLabel && actionHref ? (
@@ -99,27 +99,18 @@ export function PrintCard({ item }: { item: PrintWithMeta }) {
   const wishlisted = wishlist.includes(printId);
 
   return (
-    <article className="group overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-soft transition duration-300 hover:-translate-y-1 flex flex-col h-full">
-      <div className="relative">
-        <Link
-          href={`/prints/${encodeURIComponent(item.slug)}`}
-          className="block"
-        >
-          <MediaPanel
-            src={item.image}
-            alt={item.name}
-            label={`${item.name} print artwork`}
-            className="aspect-[4/5]"
-          />
-        </Link>
-
-        <Link
-          href={`/prints/${encodeURIComponent(item.slug)}`}
-          className="absolute bottom-0 left-0 right-0 inline-flex w-full translate-y-1 items-center justify-center border-t border-white/70 bg-white/45 px-4 py-3 text-sm font-medium tracking-[0.12em] text-cocoa opacity-0 backdrop-blur-sm transition duration-300 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto"
-        >
-          See Products
-        </Link>
-      </div>
+    <article className="overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-soft transition duration-300 hover:-translate-y-1 flex flex-col h-full">
+      <Link
+        href={`/prints/${encodeURIComponent(item.slug)}`}
+        className="group block"
+      >
+        <MediaPanel
+          src={item.image}
+          alt={item.name}
+          label={`${item.name} print artwork`}
+          className="aspect-[4/5]"
+        />
+      </Link>
 
       <div className="flex-1 flex flex-col px-5 py-4 gap-3">
         <div className="flex items-start justify-between gap-2">
@@ -127,6 +118,7 @@ export function PrintCard({ item }: { item: PrintWithMeta }) {
             <div>
               <p className="text-xs uppercase tracking-[0.28em] text-cocoa/50 line-clamp-1">{item.category}</p>
               <h3 className="font-display text-2xl text-cocoa leading-tight line-clamp-1">{item.name}</h3>
+              <p className="mt-1 text-xs text-cocoa/60 line-clamp-2">{item.description}</p>
             </div>
           </Link>
           <button
@@ -170,7 +162,7 @@ export function ProductCard({
   const [showSizeChart, setShowSizeChart] = useState(false);
 
   return (
-    <article className="overflow-hidden rounded-[1.8rem] border border-white/60 bg-white shadow-soft">
+    <article className={`overflow-hidden rounded-[1.8rem] border border-white/60 bg-white shadow-soft ${compact ? "max-h-[calc(100vh-8rem)]" : ""}`}>
       <div className="relative">
         <Link href={`/product/${encodeURIComponent(product.slug)}`} className="group block">
           <MediaPanel
@@ -215,6 +207,10 @@ export function ProductCard({
             {product.badge}
           </p>
         ) : null}
+
+        <p className="text-sm leading-6 text-cocoa/70 line-clamp-2">
+          {product.description ?? "Description coming soon."}
+        </p>
 
         <div className="flex items-center justify-between text-sm text-cocoa">
           <span>{formatCurrency(product.price)}</span>
@@ -290,24 +286,26 @@ export function ProductCard({
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={() => {
-            if (!selectedSize) {
-              alert("Please select a size before adding to cart");
-              return;
-            }
+        {!compact && (
+          <button
+            type="button"
+            onClick={() => {
+              if (!selectedSize) {
+                alert("Please select a size before adding to cart");
+                return;
+              }
 
-            addToCart(product, printName, selectedSize);
-            setIsAdded(true);
-            setTimeout(() => setIsAdded(false), 2000);
-          }}
-          className={`w-full rounded-full px-5 py-3 text-sm font-medium transition hover:-translate-y-0.5 ${
-            isAdded ? "bg-leaf text-cream" : "bg-cocoa text-cream"
-          }`}
-        >
-          {isAdded ? "✓ Added to cart" : "Add to cart"}
-        </button>
+              addToCart(product, printName, selectedSize);
+              setIsAdded(true);
+              setTimeout(() => setIsAdded(false), 2000);
+            }}
+            className={`w-full rounded-full px-5 py-3 text-sm font-medium transition hover:-translate-y-0.5 ${
+              isAdded ? "bg-leaf text-cream" : "bg-cocoa text-cream"
+            }`}
+          >
+            {isAdded ? "✓ Added to cart" : "Add to cart"}
+          </button>
+        )}
       </div>
     </article>
   );
@@ -326,33 +324,33 @@ export function ProductPurchasePanel({
   const wishlisted = wishlist.includes(product.slug);
 
   return (
-    <div className="h-full">
+    <div className="rounded-[2rem] border border-white/70 bg-white p-6 shadow-soft">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.35em] text-cocoa/50">{printName}</p>
-          <h1 className="mt-2 font-display text-4xl leading-none text-cocoa">{product.silhouette}</h1>
+          <p className="text-xs uppercase tracking-[0.4em] text-cocoa/50">{printName}</p>
+          <h1 className="mt-3 font-display text-5xl leading-none text-cocoa">{product.silhouette}</h1>
         </div>
         {product.badge ? (
-          <span className="rounded-full bg-sand px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-cocoa">
+          <span className="rounded-full bg-sand px-4 py-2 text-xs uppercase tracking-[0.28em] text-cocoa">
             {product.badge}
           </span>
         ) : null}
       </div>
 
-      <p className="mt-4 text-xl text-cocoa">{formatCurrency(product.price)}</p>
-      <p className="mt-3 text-sm leading-6 text-cocoa/72">
+      <p className="mt-5 text-2xl text-cocoa">{formatCurrency(product.price)}</p>
+      <p className="mt-4 text-base leading-7 text-cocoa/72">
         {product.description ?? "Product story and fit notes will appear here."}
       </p>
 
-      <div className="mt-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa">Sizes</p>
-        <div className="mt-2.5 flex flex-wrap gap-2.5">
+      <div className="mt-6">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cocoa">Sizes</p>
+        <div className="mt-3 flex flex-wrap gap-3">
           {(product.sizes.length ? product.sizes : ["XS", "S", "M", "L", "XL"]).map((size) => (
             <button
               key={size}
               type="button"
               onClick={() => setSelectedSize(size)}
-              className={`rounded-full border px-3 py-1.5 text-xs transition ${
+              className={`rounded-full border px-4 py-2 text-sm transition ${
                 selectedSize === size
                   ? "border-cocoa bg-cocoa text-cream"
                   : "border-cocoa/15 bg-transparent text-cocoa"
@@ -364,7 +362,7 @@ export function ProductPurchasePanel({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 rounded-[1.2rem] bg-cream p-3 text-xs text-cocoa/75">
+      <div className="mt-6 grid gap-4 rounded-[1.5rem] bg-cream p-4 text-sm text-cocoa/75">
         <div className="flex justify-between">
           <span>Fabric</span>
           <span>{product.fabric ?? "To be added"}</span>
@@ -379,13 +377,13 @@ export function ProductPurchasePanel({
         </div>
       </div>
 
-      <ul className="mt-5 space-y-1.5 text-xs leading-5 text-cocoa/72">
+      <ul className="mt-6 space-y-2 text-sm leading-6 text-cocoa/72">
         {product.details.map((detail) => (
           <li key={detail}>• {detail}</li>
         ))}
       </ul>
 
-      <div className="mt-6 grid gap-2.5 md:grid-cols-2">
+      <div className="mt-8 grid gap-3 md:grid-cols-2">
         <button
           type="button"
           onClick={() => {
@@ -397,7 +395,7 @@ export function ProductPurchasePanel({
             setIsAdded(true);
             setTimeout(() => setIsAdded(false), 2000);
           }}
-          className={`rounded-full px-4 py-2.5 text-xs font-medium uppercase tracking-[0.12em] transition hover:-translate-y-0.5 ${
+          className={`rounded-full px-5 py-3 text-sm font-medium transition hover:-translate-y-0.5 ${
             isAdded
               ? "bg-leaf text-cream"
               : "bg-cocoa text-cream"
@@ -408,7 +406,7 @@ export function ProductPurchasePanel({
         <button
           type="button"
           onClick={() => toggleWishlist(product.slug)}
-          className={`rounded-full border px-4 py-2.5 text-xs font-medium uppercase tracking-[0.12em] transition ${
+          className={`rounded-full border px-5 py-3 text-sm font-medium transition ${
             wishlisted
               ? "border-cocoa bg-cocoa text-cream"
               : "border-cocoa/15 bg-white text-cocoa hover:border-cocoa/30"

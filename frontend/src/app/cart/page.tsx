@@ -16,9 +16,7 @@ export default async function CartPage() {
   return (
     <div className="space-y-8 pb-8">
       <SectionHeader
-        eyebrow="Your edit"
         title="Cart"
-        description="A clean bag experience that still reinforces the print-first story and nudges shoppers back into the same print family."
       />
       <CartExperience suggestedProducts={suggestedProducts} printNames={printNames} />
     </div>

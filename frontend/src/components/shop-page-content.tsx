@@ -14,11 +14,9 @@ const COLOR_KEYWORDS = [
 
 interface ShopPageContentProps {
   initialCategory?: string;
-  initialStoryTags?: string[];
 }
 
 const PRINT_CATEGORY_OPTIONS = ["Abstract", "Floral"] as const;
-const PRINT_STORY_TAGS = ["Abstract", "Floral"] as const;
 
 const normalizePrintCategory = (value: string) => {
   const normalized = value.trim().toLowerCase();
@@ -27,14 +25,7 @@ const normalizePrintCategory = (value: string) => {
   return null;
 };
 
-const normalizeStoryTag = (value: string) => {
-  const normalized = value.trim().toLowerCase();
-  if (normalized === "abstract") return "Abstract";
-  if (normalized === "floral") return "Floral";
-  return null;
-};
-
-export function ShopPageContent({ initialCategory = "All", initialStoryTags = [] }: ShopPageContentProps) {
+export function ShopPageContent({ initialCategory = "All" }: ShopPageContentProps) {
   const { prints: allPrints, loading: allPrintsLoading } = useRealtimePrints();
   const initialNormalizedCategories = useMemo(
     () =>
@@ -50,25 +41,16 @@ export function ShopPageContent({ initialCategory = "All", initialStoryTags = []
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
     () => new Set(initialNormalizedCategories)
   );
-  const initialNormalizedStoryTags = useMemo(
-    () => Array.from(new Set(initialStoryTags.map((tag) => normalizeStoryTag(tag)).filter((tag): tag is string => Boolean(tag)))),
-    [initialStoryTags]
-  );
   const [selectedColors, setSelectedColors] = useState<Set<string>>(new Set());
-  const [selectedStoryTags, setSelectedStoryTags] = useState<Set<string>>(
-    () => new Set(initialNormalizedStoryTags)
-  );
 
   const activeCategories = useMemo(() => Array.from(selectedCategories), [selectedCategories]);
   const activeColors = useMemo(() => Array.from(selectedColors), [selectedColors]);
-  const activeStoryTags = useMemo(() => Array.from(selectedStoryTags), [selectedStoryTags]);
   const {
     prints: filteredPrints,
     loading: filteredPrintsLoading
   } = useRealtimePrints({
     category: activeCategories,
-    colors: activeColors,
-    storyTags: activeStoryTags
+    colors: activeColors
   });
 
   // Extract available colors from all prints
@@ -95,22 +77,13 @@ export function ShopPageContent({ initialCategory = "All", initialStoryTags = []
     setSelectedColors(newSet);
   };
 
-  const buildShopUrl = (categories: string[], storyTag?: string) => {
+  const buildShopUrl = (categories: string[]) => {
     const params = new URLSearchParams();
     if (categories.length > 0) {
       params.set("category", categories.join(","));
     }
-    if (storyTag) {
-      params.set("story", storyTag);
-    }
     const queryString = params.toString();
     return queryString ? `/shop?${queryString}` : "/shop";
-  };
-
-  const handleStoryTagSelect = (tag: string) => {
-    setSelectedStoryTags(new Set([tag]));
-    const url = buildShopUrl(activeCategories, tag);
-    window.history.pushState({}, "", url);
   };
 
   const handleCategorySelect = (category: string) => {
@@ -121,15 +94,13 @@ export function ShopPageContent({ initialCategory = "All", initialStoryTags = []
       nextCategories.add(category);
     }
     setSelectedCategories(nextCategories);
-    const activeStoryTag = Array.from(selectedStoryTags)[0];
-    const url = buildShopUrl(Array.from(nextCategories), activeStoryTag);
+    const url = buildShopUrl(Array.from(nextCategories));
     window.history.pushState({}, "", url);
   };
 
   const clearFilters = () => {
     setSelectedCategories(new Set());
     setSelectedColors(new Set());
-    setSelectedStoryTags(new Set());
     window.history.pushState({}, "", "/shop");
   };
 
@@ -150,7 +121,7 @@ export function ShopPageContent({ initialCategory = "All", initialStoryTags = []
               <span>Category</span>
               {selectedCategories.size > 0 && (
                 <span className="ml-2 text-[10px] font-medium normal-case tracking-normal text-cocoa/60">
-                  {selectedCategories.size} selected
+                  ({selectedCategories.size} selected)
                 </span>
               )}
             </button>
@@ -175,7 +146,7 @@ export function ShopPageContent({ initialCategory = "All", initialStoryTags = []
                   onClick={() => setSelectedCategories(new Set())}
                   className="w-full px-3 py-2 text-left text-xs uppercase tracking-[0.18em] text-cocoa/70 underline underline-offset-2 transition hover:text-cocoa"
                 >
-                  View all
+                  Clear filter
                 </button>
               </div>
             </div>
@@ -189,7 +160,7 @@ export function ShopPageContent({ initialCategory = "All", initialStoryTags = []
               <span>Colour</span>
               {selectedColors.size > 0 && (
                 <span className="ml-2 text-[10px] font-medium normal-case tracking-normal text-cocoa/60">
-                  {selectedColors.size} selected
+                  ({selectedColors.size} selected)
                 </span>
               )}
             </button>
@@ -214,26 +185,22 @@ export function ShopPageContent({ initialCategory = "All", initialStoryTags = []
                   onClick={() => setSelectedColors(new Set())}
                   className="w-full px-3 py-2 text-left text-xs uppercase tracking-[0.18em] text-cocoa/70 underline underline-offset-2 transition hover:text-cocoa"
                 >
-                  View all
+                  Clear filter
                 </button>
               </div>
             </div>
           </div>
 
-          {PRINT_STORY_TAGS.map((tag) => (
+          {(selectedCategories.size > 0 || selectedColors.size > 0) && (
             <button
-              key={tag}
               type="button"
-              onClick={() => handleStoryTagSelect(tag)}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${
-                selectedStoryTags.has(tag)
-                  ? "text-cocoa"
-                  : "text-cocoa/75 hover:text-cocoa"
-              }`}
+              onClick={clearFilters}
+              className="ml-auto px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-cocoa/70 underline underline-offset-2 transition hover:text-cocoa"
             >
-              {tag}
+              Clear filters
             </button>
-          ))}
+          )}
+
         </div>
       </section>
 
